@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# documentos de referencias
+referencias telas.pdf
+Documento de ESPECIFICACAO-DE-REQUISITOS.pdf
