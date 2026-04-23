@@ -13,7 +13,6 @@ function renderLinks(items, onClose) {
       to={item.path}
     >
       <span>{item.label}</span>
-      <small>{item.description}</small>
     </NavLink>
   ));
 }
@@ -22,11 +21,9 @@ function Sidebar({ isOpen, onClose }) {
   return (
     <aside className={`sidebar ${isOpen ? " sidebar--open" : ""}`}>
       <div className="sidebar-brand">
-        <p className="eyebrow">Frontend backlog</p>
+        <p className="eyebrow">Sistema principal</p>
         <h1>Sistema de Gestao</h1>
-        <p className="sidebar-copy">
-          Estrutura base focada em rotas, layout e navegacao responsiva.
-        </p>
+
       </div>
 
       <nav className="sidebar-nav">
@@ -37,7 +34,7 @@ function Sidebar({ isOpen, onClose }) {
 
         {supportNavigation.length ? (
           <div className="nav-group">
-            <p className="nav-group-title">Modulos futuros</p>
+            <p className="nav-group-title">Outros modulos</p>
             {renderLinks(supportNavigation, onClose)}
           </div>
         ) : null}

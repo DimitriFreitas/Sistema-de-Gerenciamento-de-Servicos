@@ -1,6 +1,17 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useSearchParams } from "react-router-dom";
 
 function ModuleActionNav({ actions }) {
+  const [searchParams] = useSearchParams();
+  const selectedId = searchParams.get("id");
+
+  function buildPath(path) {
+    if (!selectedId || path.endsWith("/novo") || !/\/(listar|editar|inativar)$/.test(path)) {
+      return path;
+    }
+
+    return `${path}?id=${selectedId}`;
+  }
+
   return (
     <div className="surface-card module-nav-shell">
       <div className="module-subnav">
@@ -11,7 +22,7 @@ function ModuleActionNav({ actions }) {
             }
             end
             key={action.path}
-            to={action.path}
+            to={buildPath(action.path)}
           >
             {action.label}
           </NavLink>

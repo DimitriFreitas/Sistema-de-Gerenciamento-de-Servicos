@@ -9,6 +9,7 @@ function MainLayout() {
     pathname: "/",
   });
   const location = useLocation();
+  const isHomePage = location.pathname === "/";
   const isSidebarOpen =
     sidebarState.isOpen && sidebarState.pathname === location.pathname;
 
@@ -40,7 +41,7 @@ function MainLayout() {
       ) : null}
 
       <div className="app-main">
-        <Header onMenuToggle={toggleSidebar} />
+        {isHomePage ? null : <Header onMenuToggle={toggleSidebar} />}
         <main className="content-area">
           <Outlet />
         </main>

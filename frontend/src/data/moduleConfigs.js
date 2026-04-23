@@ -1,206 +1,315 @@
+function formatCurrency(value) {
+  const amount = Number(value);
+
+  if (Number.isNaN(amount)) {
+    return "Nao informado";
+  }
+
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(amount);
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "Nao informado";
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Nao informado";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR").format(parsedDate);
+}
+
+function toDateInputValue(value) {
+  if (!value) {
+    return "";
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "";
+  }
+
+  return parsedDate.toISOString().slice(0, 10);
+}
+
+function normalizeText(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replaceAll(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function normalizeClientStatus(status) {
+  return normalizeText(status) === "inativo" ? "Inativo" : "Ativo";
+}
+
+function getClientStatusTone(status) {
+  return normalizeClientStatus(status) === "Inativo" ? "inativo" : "ativo";
+}
+
+function buildClientPayload(values) {
+  return {
+    nome: values.nome.trim(),
+    email: values.email.trim(),
+    telefone: values.telefone.trim(),
+    cpf_cnpj: values.cpf_cnpj.trim(),
+    status: normalizeText(values.status) === "inativo" ? "inativo" : "ativo",
+  };
+}
+
+function buildProductPayload(values) {
+  const payload = {
+    nome: values.nome.trim(),
+    descricao: values.descricao.trim(),
+    custo: values.custo === "" ? undefined : Number(values.custo),
+    preco: values.preco === "" ? undefined : Number(values.preco),
+    quantidadeAtual: values.quantidadeAtual === "" ? 0 : Number(values.quantidadeAtual),
+    quantidadeMinima: values.quantidadeMinima === "" ? undefined : Number(values.quantidadeMinima),
+    dataValidade: values.dataValidade || undefined,
+  };
+
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== undefined)
+  );
+}
+
 export const moduleConfigs = {
   clientes: {
     key: "clientes",
+    apiResource: "clientes",
     label: "Clientes",
     singularLabel: "cliente",
     basePath: "/clientes",
-    sprint: "RF001 a RF004",
-    summary:
-      "Modulo de clientes com telas de cadastro, consulta, edicao e inativacao baseadas no documento de requisitos.",
+    contextLabel: "Cadastro e atendimento",
+
     routeMeta: {
       base: {
-        eyebrow: "Sprint 1",
+        eyebrow: "Modulo",
         label: "Clientes",
-        description: "CRUD visual de clientes com navegacao interna e layout responsivo.",
       },
       list: {
         eyebrow: "Consulta",
         label: "Consultar clientes",
-        description: "Listagem com filtros, resumo do cliente e acoes rapidas.",
       },
       create: {
         eyebrow: "Cadastro",
         label: "Novo cliente",
-        description: "Formulario base para cadastrar cliente PF ou PJ.",
       },
       edit: {
         eyebrow: "Edicao",
         label: "Editar cliente",
-        description: "Atualizacao de dados cadastrais e enderecos de atendimento.",
       },
       deactivate: {
         eyebrow: "Inativacao",
         label: "Inativar cliente",
-        description: "Confirmacao com historico e validacao antes de inativar.",
       },
     },
     actions: [
       {
         label: "Menu do modulo",
         path: "/clientes",
-        description: "Resumo do modulo e atalhos para todas as operacoes.",
       },
       {
         label: "Consultar clientes",
         path: "/clientes/listar",
-        description: "Listagem com busca, filtro e visualizacao do cadastro.",
       },
       {
         label: "Novo cliente",
         path: "/clientes/novo",
-        description: "Cadastro de cliente com documento e endereco principal.",
       },
       {
         label: "Editar cliente",
         path: "/clientes/editar",
-        description: "Formulario de atualizacao com gerenciamento de enderecos.",
       },
       {
         label: "Inativar cliente",
         path: "/clientes/inativar",
-        description: "Confirmacao de inativacao com acoes alternativas.",
       },
     ],
     list: {
       heroTitle: "Consultar clientes",
       heroDescription:
-        "A tela segue RF003: filtros no topo, listagem principal e painel lateral com detalhes resumidos do cliente selecionado.",
+        "A consulta carrega os clientes do backend, permite filtrar por nome, documento e status e destaca o registro selecionado.",
+      emptyState: "Nenhum cliente encontrado com os filtros aplicados.",
       filters: [
-        { label: "Nome", value: "Ana" },
-        { label: "Documento", value: "123.456" },
-        { label: "Status", value: "Ativo", type: "select", options: ["Ativo", "Inativo", "Todos"] },
-      ],
-      columns: ["Nome", "Documento", "Telefone", "Status", "Acoes"],
-      rows: [
+        { name: "nome", label: "Nome", placeholder: "Buscar por nome" },
+        { name: "cpf_cnpj", label: "CPF / CNPJ", placeholder: "Filtrar por documento" },
         {
-          id: "cli-1",
-          values: ["Ana Beatriz", "123.456.789-00", "(11) 99999-1200", "Ativo"],
-        },
-        {
-          id: "cli-2",
-          values: ["Construtora Atlas", "12.345.678/0001-90", "(11) 4002-1987", "Ativo"],
-        },
-        {
-          id: "cli-3",
-          values: ["Marcos Vinicius", "987.654.321-00", "(11) 98888-7700", "Inativo"],
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Todos", "Ativo", "Inativo"],
+          defaultValue: "Todos",
         },
       ],
+      columns: [
+        { label: "Nome", render: (record) => record.nome || "Nao informado" },
+        { label: "CPF / CNPJ", render: (record) => record.cpf_cnpj || "Nao informado" },
+        { label: "Telefone", render: (record) => record.telefone || "Nao informado" },
+        {
+          label: "Status",
+          type: "status",
+          render: (record) => ({
+            text: normalizeClientStatus(record.status),
+            tone: getClientStatusTone(record.status),
+          }),
+        },
+      ],
+      matchesFilters(record, filters) {
+        const status = normalizeClientStatus(record.status);
+
+        return (
+          normalizeText(record.nome).includes(normalizeText(filters.nome)) &&
+          normalizeText(record.cpf_cnpj).includes(normalizeText(filters.cpf_cnpj)) &&
+          (filters.status === "Todos" || status === filters.status)
+        );
+      },
       detailCard: {
         title: "Detalhes do cliente",
         description:
-          "O PDF cita abas para Dados Cadastrais, Enderecos e Historico de Servicos. Aqui elas aparecem como base visual da consulta.",
-        tabs: ["Dados Cadastrais", "Enderecos", "Historico de Servicos"],
-        facts: [
-          { label: "Cliente", value: "Ana Beatriz" },
-          { label: "Documento", value: "123.456.789-00" },
-          { label: "Status", value: "Ativo" },
-          { label: "Endereco principal", value: "Rua das Acacias, 120" },
-        ],
+          "Os dados abaixo sao carregados diretamente da API para apoiar consulta, edicao e atualizacao de status.",
+        tabs: ["Dados Cadastrais", "Contato", "Status"],
+        facts(record) {
+          if (!record) {
+            return [];
+          }
+
+          return [
+            { label: "Cliente", value: record.nome || "Nao informado" },
+            { label: "Documento", value: record.cpf_cnpj || "Nao informado" },
+            { label: "E-mail", value: record.email || "Nao informado" },
+            { label: "Status", value: normalizeClientStatus(record.status) },
+          ];
+        },
       },
     },
     create: {
       heroTitle: "Cadastrar cliente",
-      heroDescription:
-        "RF001 define Nome ou Razao Social, CPF ou CNPJ, Endereco principal, Telefone e E-mail. A tela segue esse conjunto minimo.",
       sideNotes: [
-        "Pessoa fisica ou juridica no mesmo fluxo.",
-        "Endereco principal em destaque, como no requisito.",
-        "Acao principal retorna para a listagem de clientes.",
+        "Os dados sao enviados diretamente para a API de clientes.",
+        "Nome, e-mail e CPF ou CNPJ sao obrigatorios.",
+        "Após salvar, a listagem pode ser consultada imediatamente.",
       ],
       fields: [
-        { label: "Tipo de cliente", type: "select", options: ["Pessoa Fisica", "Pessoa Juridica"] },
-        { label: "Nome / Razao Social", placeholder: "Informe o nome do cliente" },
-        { label: "CPF / CNPJ", placeholder: "000.000.000-00 ou 00.000.000/0000-00" },
-        { label: "Endereco principal", placeholder: "Rua, numero e complemento" },
-        { label: "Telefone", placeholder: "(00) 00000-0000" },
-        { label: "E-mail", placeholder: "cliente@empresa.com" },
+        { name: "nome", label: "Nome", placeholder: "Informe o nome do cliente" },
+        { name: "cpf_cnpj", label: "CPF / CNPJ", placeholder: "000.000.000-00 ou 00.000.000/0000-00" },
+        { name: "email", label: "E-mail", type: "email", placeholder: "cliente@empresa.com" },
+        { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000" },
       ],
-      primaryLabel: "Salvar",
+      submitLabel: "Salvar cliente",
+      successMessage: "Cliente cadastrado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/clientes/listar",
+      toPayload(values) {
+        return buildClientPayload({ ...values, status: "ativo" });
+      },
     },
     edit: {
       heroTitle: "Editar cliente",
       heroDescription:
-        "RF002 pede alteracao de dados cadastrais e gerenciamento de enderecos. O formulario ja nasce com esses pontos visiveis.",
+        "Edicao dos dados cadastrais do cliente selecionado com persistencia imediata na API.",
       sideNotes: [
-        "Campos preenchidos para representar um cadastro existente.",
-        "Bloco de enderecos exibido como area complementar.",
-        "Botao principal segue a nomenclatura do requisito.",
+        "Os campos sao preenchidos com os dados atuais do backend.",
+        "O status pode ser ajustado nesta tela quando necessario.",
+        "As alteracoes salvas ficam disponiveis imediatamente na listagem.",
       ],
-      alert: "Gerenciar enderecos: adicione, edite ou remova pontos de atendimento vinculados ao cliente.",
+      alert:
+        "Selecione um cliente na consulta para abrir a edicao com o registro correto.",
       fields: [
-        { label: "Nome / Razao Social", defaultValue: "Construtora Atlas" },
-        { label: "CPF / CNPJ", defaultValue: "12.345.678/0001-90" },
-        { label: "Telefone", defaultValue: "(11) 4002-1987" },
-        { label: "E-mail", defaultValue: "contato@atlas.com" },
-        { label: "Endereco principal", defaultValue: "Av. Industrial, 550" },
-        { label: "Status", type: "select", options: ["Ativo", "Inativo"], defaultValue: "Ativo" },
+        { name: "nome", label: "Nome", placeholder: "Informe o nome do cliente" },
+        { name: "cpf_cnpj", label: "CPF / CNPJ", placeholder: "000.000.000-00 ou 00.000.000/0000-00" },
+        { name: "email", label: "E-mail", type: "email", placeholder: "cliente@empresa.com" },
+        { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000" },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Ativo", "Inativo"],
+          defaultValue: "Ativo",
+        },
       ],
-      extraPanel: {
-        title: "Enderecos de atendimento",
-        items: ["Matriz - Av. Industrial, 550", "Obra Centro - Rua Nova, 88"],
-      },
-      primaryLabel: "Salvar Alteracoes",
+      submitLabel: "Salvar alteracoes",
+      successMessage: "Cliente atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/clientes/listar",
+      toPayload(values) {
+        return buildClientPayload(values);
+      },
     },
     deactivate: {
       heroTitle: "Inativar cliente",
       heroDescription:
-        "RF004 usa modal de confirmacao com detalhes do cliente e acoes alternativas como exportar historico e agendar inativacao.",
+        "A inativacao atualiza o status do cliente para inativo sem remover o cadastro do banco.",
       warning:
-        "Nao e possivel inativar cliente com servicos pendentes. Em um fluxo real, a listagem de pendencias aparece antes da confirmacao.",
-      facts: [
-        { label: "Cliente", value: "Construtora Atlas" },
-        { label: "Documento", value: "12.345.678/0001-90" },
-        { label: "Status atual", value: "Ativo" },
-        { label: "Ultimo servico", value: "Instalacao eletrica - 10/04/2026" },
-      ],
+        "Revise os dados do cliente antes de confirmar a inativacao. A alteracao sera persistida imediatamente na API.",
       optionalField: {
         label: "Observacao da inativacao",
-        placeholder: "Registre contexto, data ou orientacao interna.",
+        placeholder: "Registre uma observacao interna para referencia da equipe.",
       },
-      actionButtons: [
-        { label: "Confirmar inativacao", variant: "danger" },
-        { label: "Exportar historico", variant: "primary" },
-        { label: "Agendar inativacao", variant: "secondary" },
-      ],
+      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
+      successMessage: "Cliente inativado com sucesso.",
+      facts(record) {
+        if (!record) {
+          return [];
+        }
+
+        return [
+          { label: "Cliente", value: record.nome || "Nao informado" },
+          { label: "Documento", value: record.cpf_cnpj || "Nao informado" },
+          { label: "E-mail", value: record.email || "Nao informado" },
+          { label: "Status atual", value: normalizeClientStatus(record.status) },
+        ];
+      },
+      asyncAction: "update",
+      buildPayload(record) {
+        return {
+          ...record,
+          status: "inativo",
+        };
+      },
     },
   },
   produtos: {
     key: "produtos",
+    apiResource: "produtos",
     label: "Produtos",
     singularLabel: "produto",
     basePath: "/produtos",
-    sprint: "RF005 a RF008",
+    contextLabel: "Estoque e cadastro",
     summary:
-      "Modulo de produtos com CRUD visual focado em estoque, fornecedor e inativacao sem exclusao fisica.",
+      "Modulo de produtos com consulta, cadastro, edicao e remocao integrados ao backend.",
     routeMeta: {
       base: {
-        eyebrow: "Sprint 1",
+        eyebrow: "Modulo",
         label: "Produtos",
-        description: "CRUD visual de produtos alinhado aos requisitos de estoque.",
+        description: "Cadastro e consulta de produtos com dados reais do estoque.",
       },
       list: {
         eyebrow: "Consulta",
         label: "Consultar produtos",
-        description: "Listagem com filtros, status e painel lateral de informacoes.",
+        description: "Listagem do estoque com filtros e acoes do cadastro.",
       },
       create: {
         eyebrow: "Cadastro",
         label: "Novo produto",
-        description: "Formulario base para cadastro de produtos do estoque.",
+        description: "Cadastro de produto com descricao, estoque e valores.",
       },
       edit: {
         eyebrow: "Edicao",
         label: "Editar produto",
-        description: "Atualizacao de estoque minimo, localizacao, custo e fornecedor.",
+        description: "Atualizacao dos dados do produto selecionado.",
       },
       deactivate: {
         eyebrow: "Inativacao",
         label: "Inativar produto",
-        description: "Confirmacao com sugestao de substituto e impacto no estoque.",
+        description: "Remocao do produto selecionado no cadastro atual.",
       },
     },
     actions: [
@@ -212,131 +321,199 @@ export const moduleConfigs = {
       {
         label: "Consultar produtos",
         path: "/produtos/listar",
-        description: "Listagem com filtros por nome, fornecedor e status.",
+        description: "Listagem com filtros por nome, descricao e saldo de estoque.",
       },
       {
         label: "Novo produto",
         path: "/produtos/novo",
-        description: "Cadastro com unidade de medida, custo e localizacao.",
+        description: "Cadastro com descricao, valores e quantidades.",
       },
       {
         label: "Editar produto",
         path: "/produtos/editar",
-        description: "Atualizacao dos campos operacionais do estoque.",
+        description: "Atualizacao dos campos do produto selecionado.",
       },
       {
         label: "Inativar produto",
         path: "/produtos/inativar",
-        description: "Confirmacao com sugestao de substituto e transferencia.",
+        description: "Remocao do produto selecionado no cadastro atual.",
       },
     ],
     list: {
       heroTitle: "Consultar produtos",
       heroDescription:
-        "A tela segue RF007: filtros de busca, listagem principal e bloco lateral com abas de consulta do produto.",
+        "A consulta carrega os produtos do backend, permite filtrar por nome, descricao e faixa de estoque e destaca o item selecionado.",
+      emptyState: "Nenhum produto encontrado com os filtros aplicados.",
       filters: [
-        { label: "Nome", value: "Disjuntor" },
-        { label: "Fornecedor", value: "Eletrica Central" },
-        { label: "Status", value: "Ativo", type: "select", options: ["Ativo", "Inativo", "Todos"] },
-      ],
-      columns: ["Produto", "Fornecedor", "Estoque", "Localizacao", "Status", "Acoes"],
-      rows: [
+        { name: "nome", label: "Nome", placeholder: "Buscar por nome" },
+        { name: "descricao", label: "Descricao", placeholder: "Filtrar por descricao" },
         {
-          id: "prd-1",
-          values: ["Disjuntor Tripolar", "Eletrica Central", "18", "Rua A / Prateleira 2", "Ativo"],
-        },
-        {
-          id: "prd-2",
-          values: ["Cabo Flexivel 6mm", "Fios Brasil", "52 kg", "Rua B / Box 3", "Ativo"],
-        },
-        {
-          id: "prd-3",
-          values: ["Painel de comando", "Metal Sul", "02", "Area tecnica", "Inativo"],
+          name: "estoque",
+          label: "Estoque",
+          type: "select",
+          options: ["Todos", "Disponivel", "Abaixo do minimo", "Sem estoque"],
+          defaultValue: "Todos",
         },
       ],
+      columns: [
+        { label: "Nome", render: (record) => record.nome || "Nao informado" },
+        { label: "Descricao", render: (record) => record.descricao || "Nao informado" },
+        { label: "Estoque atual", render: (record) => String(record.quantidadeAtual ?? 0) },
+        { label: "Estoque minimo", render: (record) => String(record.quantidadeMinima ?? 0) },
+        { label: "Custo", render: (record) => formatCurrency(record.custo) },
+      ],
+      matchesFilters(record, filters) {
+        const currentAmount = Number(record.quantidadeAtual ?? 0);
+        const minimumAmount = Number(record.quantidadeMinima ?? 0);
+        const stockState =
+          currentAmount <= 0
+            ? "Sem estoque"
+            : minimumAmount > 0 && currentAmount <= minimumAmount
+              ? "Abaixo do minimo"
+              : "Disponivel";
+
+        return (
+          normalizeText(record.nome).includes(normalizeText(filters.nome)) &&
+          normalizeText(record.descricao).includes(normalizeText(filters.descricao)) &&
+          (filters.estoque === "Todos" || stockState === filters.estoque)
+        );
+      },
       detailCard: {
         title: "Detalhes do produto",
         description:
-          "O PDF menciona abas para Dados Cadastrais, Movimentacoes, Fornecedor e Servicos Relacionados. Elas aparecem aqui como guia visual.",
-        tabs: ["Dados Cadastrais", "Movimentacoes", "Fornecedor", "Servicos Relacionados"],
-        facts: [
-          { label: "Produto", value: "Disjuntor Tripolar" },
-          { label: "Fornecedor", value: "Eletrica Central" },
-          { label: "Estoque atual", value: "18 unidades" },
-          { label: "Estoque minimo", value: "08 unidades" },
-        ],
+          "Os dados abaixo sao carregados da API de produtos para apoiar consulta, edicao e exclusao do item.",
+        tabs: ["Cadastro", "Estoque", "Valores"],
+        facts(record) {
+          if (!record) {
+            return [];
+          }
+
+          return [
+            { label: "Produto", value: record.nome || "Nao informado" },
+            { label: "Descricao", value: record.descricao || "Nao informado" },
+            { label: "Estoque atual", value: String(record.quantidadeAtual ?? 0) },
+            { label: "Validade", value: formatDate(record.dataValidade) },
+          ];
+        },
       },
     },
     create: {
       heroTitle: "Cadastrar produto",
       heroDescription:
-        "RF005 define os campos principais de estoque. A tela segue nome, unidade de medida, estoque minimo, localizacao, custo e fornecedor.",
+        "Formulario integrado ao backend para criar produtos com descricao, estoque e valores.",
       sideNotes: [
-        "Cadastro simples, sem excesso visual.",
-        "Campos alinhados ao requisito funcional.",
-        "Acao principal devolve para a consulta de produtos.",
+        "Os campos seguem o contrato atual da API de produtos.",
+        "Custo, preco e quantidades aceitam apenas valores numericos.",
+        "A data de validade e opcional.",
       ],
       fields: [
-        { label: "Nome do produto", placeholder: "Ex.: Disjuntor Tripolar" },
-        { label: "Unidade de medida", type: "select", options: ["Unidade", "Kg"] },
-        { label: "Estoque minimo", placeholder: "Quantidade minima" },
-        { label: "Localizacao", placeholder: "Rua, box ou prateleira" },
-        { label: "Custo unitario", placeholder: "R$ 0,00" },
-        { label: "Fornecedor", placeholder: "Nome do fornecedor" },
+        { name: "nome", label: "Nome do produto", placeholder: "Ex.: Disjuntor Tripolar" },
+        {
+          name: "descricao",
+          label: "Descricao",
+          type: "textarea",
+          placeholder: "Descreva o produto cadastrado",
+          fullWidth: true,
+        },
+        { name: "quantidadeAtual", label: "Quantidade atual", type: "number", placeholder: "0", min: 0 },
+        { name: "quantidadeMinima", label: "Quantidade minima", type: "number", placeholder: "0", min: 0 },
+        { name: "custo", label: "Custo", type: "number", placeholder: "0.00", min: 0, step: "0.01" },
+        { name: "preco", label: "Preco", type: "number", placeholder: "0.00", min: 0, step: "0.01" },
+        { name: "dataValidade", label: "Data de validade", type: "date" },
       ],
-      primaryLabel: "Confirmar cadastro",
+      submitLabel: "Salvar produto",
+      successMessage: "Produto cadastrado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/produtos/listar",
+      toPayload(values) {
+        return buildProductPayload(values);
+      },
     },
     edit: {
       heroTitle: "Editar produto",
       heroDescription:
-        "RF006 pede alteracao de nome, unidade, estoque minimo, localizacao, custo e fornecedor. A tela reflete esse bloco de dados.",
+        "Edicao do produto selecionado com persistencia direta dos campos no backend.",
       sideNotes: [
-        "Busca rapida e paginacao entram na tela de consulta.",
-        "Aqui o foco e ajuste dos dados do item.",
-        "Campos sao preenchidos para simular um produto existente.",
+        "Os campos sao preenchidos com os dados atuais do produto.",
+        "Descricao, estoque e valores podem ser ajustados na mesma tela.",
+        "As alteracoes salvas ficam visiveis imediatamente na consulta.",
       ],
-      alert: "Em um fluxo completo, a busca rapida localiza o produto antes da abertura do formulario de edicao.",
+      alert:
+        "Selecione um produto na consulta para abrir a edicao com o registro correto.",
       fields: [
-        { label: "Nome do produto", defaultValue: "Disjuntor Tripolar" },
-        { label: "Unidade de medida", type: "select", options: ["Unidade", "Kg"], defaultValue: "Unidade" },
-        { label: "Estoque minimo", defaultValue: "08" },
-        { label: "Localizacao", defaultValue: "Rua A / Prateleira 2" },
-        { label: "Custo unitario", defaultValue: "R$ 79,90" },
-        { label: "Fornecedor", defaultValue: "Eletrica Central" },
+        { name: "nome", label: "Nome do produto", placeholder: "Ex.: Disjuntor Tripolar" },
+        {
+          name: "descricao",
+          label: "Descricao",
+          type: "textarea",
+          placeholder: "Descreva o produto cadastrado",
+          fullWidth: true,
+        },
+        { name: "quantidadeAtual", label: "Quantidade atual", type: "number", placeholder: "0", min: 0 },
+        { name: "quantidadeMinima", label: "Quantidade minima", type: "number", placeholder: "0", min: 0 },
+        { name: "custo", label: "Custo", type: "number", placeholder: "0.00", min: 0, step: "0.01" },
+        { name: "preco", label: "Preco", type: "number", placeholder: "0.00", min: 0, step: "0.01" },
+        { name: "dataValidade", label: "Data de validade", type: "date" },
       ],
       extraPanel: {
-        title: "Resumo do estoque",
-        items: ["Estoque atual: 18 unidades", "Ultima entrada: 09/04/2026", "Status: Ativo"],
+        title: "Resumo do cadastro",
+        items: [
+          "Atualize os dados do produto conforme a necessidade operacional.",
+          "Os valores sao enviados para o backend no formato numerico.",
+          "A consulta reflete as alteracoes salvas apos a resposta da API.",
+        ],
       },
-      primaryLabel: "Salvar Alteracoes",
+      submitLabel: "Salvar alteracoes",
+      successMessage: "Produto atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/produtos/listar",
+      toPayload(values) {
+        return buildProductPayload(values);
+      },
     },
     deactivate: {
       heroTitle: "Inativar produto",
       heroDescription:
-        "RF008 usa modal de confirmacao com sugestao de substituto e possibilidade de transferir estoque residual antes da inativacao.",
+        "No backend atual, a inativacao do produto e tratada como remocao do cadastro selecionado.",
       warning:
-        "Produtos vinculados a servicos em andamento nao podem ser inativados. A excecao foi destacada na interface.",
-      facts: [
-        { label: "Produto", value: "Painel de comando" },
-        { label: "Fornecedor", value: "Metal Sul" },
-        { label: "Estoque atual", value: "02 unidades" },
-        { label: "Status atual", value: "Ativo" },
-      ],
+        "Revise os dados do produto antes de confirmar. A acao remove o item do backend atual.",
       optionalField: {
-        label: "Produto substituto sugerido",
-        placeholder: "Selecione um item similar para futuras referencias.",
+        label: "Observacao da inativacao",
+        placeholder: "Registre uma observacao interna antes de remover o produto.",
       },
-      actionButtons: [
-        { label: "Confirmar inativacao", variant: "danger" },
-        { label: "Sugerir substituto", variant: "primary" },
-        { label: "Transferir estoque", variant: "secondary" },
-      ],
+      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
+      successMessage: "Produto removido com sucesso.",
+      facts(record) {
+        if (!record) {
+          return [];
+        }
+
+        return [
+          { label: "Produto", value: record.nome || "Nao informado" },
+          { label: "Descricao", value: record.descricao || "Nao informado" },
+          { label: "Estoque atual", value: String(record.quantidadeAtual ?? 0) },
+          { label: "Validade", value: formatDate(record.dataValidade) },
+        ];
+      },
+      asyncAction: "delete",
     },
   },
 };
 
 export const orderedModules = Object.values(moduleConfigs);
+
+export function getInitialFormValues(fields, record = {}) {
+  return Object.fromEntries(
+    fields.map((field) => {
+      if (field.type === "date") {
+        return [field.name, toDateInputValue(record[field.name]) || field.defaultValue || ""];
+      }
+
+      if (record[field.name] !== undefined && record[field.name] !== null) {
+        return [field.name, String(record[field.name])];
+      }
+
+      return [field.name, field.defaultValue || ""];
+    })
+  );
+}

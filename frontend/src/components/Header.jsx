@@ -22,13 +22,7 @@ function Header({ onMenuToggle }) {
         <div>
           <p className="eyebrow">{routeMeta.eyebrow}</p>
           <h2>{routeMeta.label}</h2>
-          <p className="header-copy">{routeMeta.description}</p>
         </div>
-      </div>
-
-      <div className="header-badge">
-        <span>UI only</span>
-        <small>Responsivo</small>
       </div>
     </header>
   );

@@ -246,8 +246,17 @@ button {
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
 }
 
+.hero-grid--single,
+.content-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .form-layout {
   grid-template-columns: 300px minmax(0, 1fr);
+}
+
+.form-layout--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .hero-panel,
@@ -325,6 +334,14 @@ button {
 .button:hover,
 .button:focus-visible {
   transform: translateY(-1px);
+}
+
+.button:disabled,
+.button--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  box-shadow: none;
+  transform: none;
 }
 
 .button--primary {
@@ -470,6 +487,10 @@ button {
   gap: 8px;
 }
 
+.field--full {
+  grid-column: 1 / -1;
+}
+
 .field span {
   font-size: 0.88rem;
   font-weight: 700;
@@ -497,6 +518,11 @@ button {
   border-color: rgba(31, 124, 255, 0.44);
   box-shadow: 0 0 0 4px rgba(31, 124, 255, 0.12);
   background: #ffffff;
+}
+
+.field textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .tab-row {
@@ -562,6 +588,19 @@ button {
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+.data-table-row--active {
+  background: rgba(143, 200, 202, 0.14);
+}
+
+.data-table-row--active td {
+  border-bottom-color: rgba(39, 95, 105, 0.18);
+}
+
+.data-table-empty {
+  color: var(--muted);
+  text-align: center;
 }
 
 .status-pill {

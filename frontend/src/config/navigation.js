@@ -4,7 +4,7 @@ export const primaryNavigation = [
   {
     label: "Inicio",
     path: "/",
-    description: "Visao geral da Sprint 1 e dos modulos ativos do front-end.",
+    description: "Visao geral do sistema e acesso aos modulos principais.",
   },
   ...orderedModules.map((module) => ({
     label: module.label,
@@ -19,7 +19,7 @@ const routeMetadata = {
   "/": {
     eyebrow: "Tela inicial",
     label: "Bem-vindo",
-    description: "Sprint 1 com shell responsivo e CRUD visual de clientes e produtos.",
+    description: "Sistema com modulos de clientes e produtos prontos para operacao.",
   },
   ...orderedModules.reduce((accumulator, module) => {
     accumulator[module.basePath] = module.routeMeta.base;
@@ -48,7 +48,7 @@ export function getRouteMeta(pathname) {
     routeMetadata[partialMatch] ?? {
       eyebrow: "Navegacao",
       label: "Sistema de Gestao",
-      description: "Fluxo visual do backlog de frontend.",
+      description: "Fluxo principal de operacao do sistema.",
     }
   );
 }

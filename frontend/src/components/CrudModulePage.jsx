@@ -8,9 +8,8 @@ function CrudModulePage({ moduleConfig }) {
 
       <section className="hero-grid">
         <article className="hero-panel hero-panel--accent">
-          <p className="eyebrow">{moduleConfig.sprint}</p>
+          <p className="eyebrow">{moduleConfig.contextLabel}</p>
           <h2>{moduleConfig.label}</h2>
-          <p className="hero-copy">{moduleConfig.summary}</p>
 
           <div className="hero-actions">
             <Link className="button button--light" to={moduleConfig.actions[1].path}>
@@ -28,14 +27,13 @@ function CrudModulePage({ moduleConfig }) {
               <p className="eyebrow">Operacoes</p>
               <h3>CRUD do modulo</h3>
             </div>
-            <span className="badge">{moduleConfig.sprint}</span>
+            <span className="badge">{moduleConfig.contextLabel}</span>
           </div>
 
           <div className="action-stack">
             {moduleConfig.actions.slice(1).map((action) => (
               <Link className="action-card" key={action.path} to={action.path}>
                 <strong>{action.label}</strong>
-                <p>{action.description}</p>
               </Link>
             ))}
           </div>
