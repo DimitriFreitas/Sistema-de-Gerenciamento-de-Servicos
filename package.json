@@ -1,0 +1,11 @@
+{
+  "name": "sistema-de-gerenciamento-de-servicos-root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "start": "concurrently -n backend,frontend -c blue,green \"npm --prefix backend run start\" \"npm --prefix frontend run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

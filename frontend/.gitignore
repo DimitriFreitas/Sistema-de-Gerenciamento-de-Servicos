@@ -26,3 +26,10 @@ dist-ssr
 # documentos de referencias
 referencias telas.pdf
 Documento de ESPECIFICACAO-DE-REQUISITOS.pdf
+
+# node
+node_modules/
+
+# local agent state
+.codex
+.omx/
