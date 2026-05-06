@@ -9,3 +9,4 @@ const clienteSchema = new mongoose.Schema({
 });
 
 export default mongoose.model("Cliente", clienteSchema);
+

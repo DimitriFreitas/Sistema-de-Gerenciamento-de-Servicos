@@ -50,7 +50,7 @@ class ProdutoController {
       const produto = await Produto.findByIdAndUpdate(
         id,
         req.body,
-        { new: true }
+        { returnDocument: "after" }
       );
 
       if (!produto) {

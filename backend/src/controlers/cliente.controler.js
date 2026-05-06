@@ -20,9 +20,25 @@ class ClienteController {
     }
   }
 
+  async buscarCliente(req, res) {
+    try {
+      const cliente = await Cliente.findById(req.params.id);
+
+      if (!cliente) {
+        return res.status(404).json({ mensagem: "Cliente não encontrado" });
+      }
+
+      return res.status(200).json(cliente);
+    } catch (erro) {
+      return res.status(500).json({ mensagem: erro.message });
+    }
+  }
+
   async atualizarCliente(req, res) {
     try {
-      const cliente = await Cliente.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const cliente = await Cliente.findByIdAndUpdate(req.params.id, req.body, {
+        returnDocument: "after",
+      });
       return res.status(200).json(cliente);
     } catch (erro) {
       return res.status(500).json({ mensagem: erro.message });
