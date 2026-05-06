@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 
 export async function connectDB() {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB conectado ");
-  } catch (error) {
-    console.error("Erro ao conectar:", error);
+  const mongoUri = process.env.MONGO_URI;
+
+  if (!mongoUri) {
+    throw new Error("MONGO_URI nao foi configurada. Crie backend/.env com a string de conexao do MongoDB.");
   }
+
+  await mongoose.connect(mongoUri);
+  console.log("MongoDB conectado");
 }

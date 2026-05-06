@@ -2,12 +2,17 @@ import dotenv from 'dotenv';
 import app from './src/app.js';
 import { connectDB } from './src/config/database.js';
 
-dotenv.config({ path: "./.env" });
+dotenv.config({ path: new URL(".env", import.meta.url) });
 
-console.log("MONGO_URI:", process.env.MONGO_URI);
+const PORT = process.env.PORT || 3000;
 
-connectDB();
+try {
+    await connectDB();
 
-app.listen(3000, () => {
-    console.log('Servidor rodando');
-});
+    app.listen(PORT, () => {
+        console.log(`Servidor rodando na porta ${PORT}`);
+    });
+} catch (error) {
+    console.error("Erro ao iniciar servidor:", error.message);
+    process.exit(1);
+}
