@@ -1,13 +1,13 @@
 # Guia do Frontend
 
-Esta pasta contém o frontend em React + Vite do projeto. No estado atual, ela está focada na entrega visual da Sprint 1 para os módulos de `Clientes` e `Produtos`, com navegação responsiva e fluxos CRUD simulados.
+Esta pasta contém o frontend em React + Vite do projeto. No estado atual, ela concentra a interface dos módulos de `Clientes` e `Produtos`, com navegação responsiva e fluxos CRUD integrados à API do backend.
 
-Hoje, o frontend está em um estágio visual:
+Hoje, o frontend já cobre o fluxo principal da aplicação:
 
 - layout, rotas e navegação já foram implementados
 - telas de CRUD de `Clientes` e `Produtos` já existem
-- os dados ainda são mockados no próprio frontend
-- a integração com o backend ainda não foi conectada
+- listagem, cadastro, edição e inativação/remover usam chamadas HTTP
+- filtros, ordenação de colunas e painel lateral funcionam sobre os dados retornados pela API
 
 ## Stack utilizada
 
@@ -61,9 +61,10 @@ frontend/
 ├── src/
 │   ├── components/         # Blocos reutilizáveis e páginas CRUD genéricas
 │   ├── config/             # Metadados de navegação e rotas
-│   ├── data/               # Configuração mockada dos módulos ativos
+│   ├── data/               # Configuração dos módulos ativos
 │   ├── layouts/            # Layout principal da aplicação
-│   ├── pages/              # Páginas de topo usadas pelas rotas
+│   ├── lib/                # Cliente HTTP usado para acessar a API
+│   ├── pages/              # Página inicial usada pelas rotas
 │   ├── routes/             # Definição do roteamento
 │   ├── App.jsx             # Componente principal
 │   ├── main.jsx            # Bootstrap do React
@@ -109,12 +110,27 @@ Esse arquivo é a fonte principal para:
 - módulos ativos
 - labels e descrições das rotas
 - textos dos botões
-- linhas mockadas das tabelas
+- filtros e colunas das tabelas
 - campos dos formulários
 - painéis laterais de detalhes
 - fluxo visual de inativação
 
 Se o objetivo for alterar o conteúdo visual de `Clientes` ou `Produtos`, esse é o primeiro arquivo a revisar.
+
+### Comunicação com a API
+
+As chamadas para o backend estão centralizadas em:
+
+- `src/lib/api.js`
+
+Esse arquivo monta a URL base da API, interpreta as respostas JSON e expõe funções reutilizáveis para:
+
+- listar registros
+- criar registros
+- atualizar registros
+- remover registros
+
+Por padrão, o frontend usa `/api` como base. Em desenvolvimento, o `vite.config.js` redireciona essas chamadas para `http://localhost:3000`.
 
 ### Telas CRUD reutilizáveis
 
@@ -156,7 +172,7 @@ Rotas desconhecidas redirecionam para `/`.
 
 ## Comportamento atual
 
-Hoje o frontend funciona como um protótipo navegável, não como uma aplicação totalmente integrada.
+Hoje o frontend funciona como uma interface CRUD integrada aos endpoints de `Clientes` e `Produtos`.
 
 O que já funciona:
 
@@ -164,15 +180,18 @@ O que já funciona:
 - navegação lateral e cabeçalho dinâmico
 - transição entre telas por rota
 - estrutura CRUD de `Clientes` e `Produtos`
-- formulários, tabelas e painéis com dados simulados
+- listagem com filtros e ordenação por coluna
+- formulários de cadastro e edição enviados ao backend
+- inativação de cliente por alteração de status
+- remoção de produto pelo fluxo de inativação do módulo
+- estados de carregamento, sucesso e erro nas chamadas principais
 
-O que ainda não foi implementado:
+Pontos que ainda podem evoluir:
 
-- chamadas reais para o backend
-- persistência de cadastro, edição e inativação
-- regras reais de validação
-- tratamento de erros da API
-- estados de carregamento ligados a requisições reais
+- validações mais completas no frontend antes do envio
+- autenticação e autorização de usuários
+- paginação para listas maiores
+- testes automatizados de interface
 
 ## Como alterar a interface
 
@@ -186,7 +205,7 @@ Use esse arquivo para alterar:
 
 - labels
 - descrições
-- dados mockados
+- filtros e colunas das listagens
 - campos dos formulários
 - textos de ações e botões
 
@@ -232,31 +251,26 @@ Para adicionar um novo módulo seguindo o padrão atual:
 
 A estrutura atual é orientada por configuração, então o ideal é reutilizar os componentes CRUD existentes em vez de duplicar páginas novas do zero.
 
-## Caminho recomendado para integração com o backend
+## Como a integração com o backend funciona
 
-Quando chegar a hora de integrar de verdade:
+O frontend consome os endpoints definidos em `moduleConfigs.js` por meio de `src/lib/api.js`.
 
-1. Mantenha `moduleConfigs.js` apenas para conteúdo estático de interface.
-2. Tire as linhas mockadas e os detalhes fixos da configuração.
-3. Crie serviços ou funções para consumir a API de `Clientes` e `Produtos`.
-4. Substitua os botões visuais por ações reais de envio.
-5. Adicione estados de carregamento, sucesso e erro.
-6. Adicione validações coerentes com os requisitos funcionais.
+O fluxo geral é:
 
-## Observações sobre arquivos já existentes
+1. A rota carrega um componente CRUD genérico.
+2. O componente recebe a configuração do módulo (`Clientes` ou `Produtos`).
+3. A configuração informa qual recurso da API deve ser usado.
+4. O `api.js` executa a chamada HTTP.
+5. A tela atualiza a lista, o formulário ou o painel lateral conforme a resposta.
 
-Existem arquivos em `src/pages/` que parecem ser legados ou não fazem parte do fluxo principal atual:
+No ambiente de desenvolvimento, o proxy do Vite permite que o frontend chame `/api/...` e o Vite encaminhe a requisição para o backend em `http://localhost:3000`.
 
-- `src/pages/Clientes.jsx`
-- `src/pages/Produtos.jsx`
-- `src/pages/ModuloPlaceholder.jsx`
-
-No fluxo roteado atual, o caminho principal usa:
+## Observações sobre páginas
 
 - `src/pages/Home.jsx`
 - os componentes CRUD reutilizáveis dentro de `src/components/`
 
-Antes de remover qualquer arquivo antigo, vale confirmar se ninguém do grupo ainda depende deles.
+No fluxo roteado atual, `Home.jsx` é a página inicial. As telas de clientes e produtos são montadas pelos componentes CRUD reutilizáveis, não por páginas separadas em `src/pages/`.
 
 ## Fluxo de trabalho recomendado
 
@@ -275,6 +289,6 @@ Hoje esta pasta representa:
 - um shell responsivo de aplicação
 - fluxos visuais da Sprint 1 para `Clientes`
 - fluxos visuais da Sprint 1 para `Produtos`
-- uma base pronta para começar a integração com o backend
+- integração básica com o backend para CRUD de `Clientes` e `Produtos`
 
-Ela ainda não representa um frontend totalmente finalizado para produção.
+Ela ainda não representa um frontend totalmente finalizado para produção, mas já cobre o fluxo funcional principal dos módulos apresentados.
