@@ -590,6 +590,31 @@ button {
   letter-spacing: 0.06em;
 }
 
+.table-sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: inherit;
+  text-align: left;
+  text-transform: inherit;
+}
+
+.table-sort-button:hover,
+.table-sort-button:focus-visible {
+  color: var(--accent-deep);
+}
+
+.table-sort-indicator {
+  min-width: 1em;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+}
+
 .data-table-row--active {
   background: rgba(143, 200, 202, 0.14);
 }

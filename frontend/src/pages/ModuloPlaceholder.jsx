@@ -25,6 +25,7 @@ function ModuloPlaceholder({ title, description, taskId, plannedWindow }) {
           <div className="timeline-list">
             <div className="timeline-item">
               <strong>Resumo</strong>
+              <p>{description}</p>
             </div>
             <div className="timeline-item">
               <strong>Referencia interna</strong>

@@ -3,6 +3,20 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import { api } from "../lib/api";
 import ModuleActionNav from "./ModuleActionNav";
 
+function getComparableValue(column, record) {
+  const value = column.sortValue ? column.sortValue(record) : column.render(record);
+  const normalizedValue = value?.text ?? value ?? "";
+
+  if (typeof normalizedValue === "number") {
+    return normalizedValue;
+  }
+
+  return String(normalizedValue)
+    .normalize("NFD")
+    .replaceAll(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 function CrudListPage({ moduleConfig }) {
   const detail = moduleConfig.list.detailCard;
   const navigate = useNavigate();
@@ -21,6 +35,10 @@ function CrudListPage({ moduleConfig }) {
       ])
     )
   );
+  const [sortConfig, setSortConfig] = useState({
+    columnLabel: moduleConfig.list.columns[0]?.label ?? "",
+    direction: "asc",
+  });
   const feedback = location.state?.feedback ?? null;
 
   useEffect(() => {
@@ -50,9 +68,31 @@ function CrudListPage({ moduleConfig }) {
   const filteredRecords = records.filter((record) =>
     moduleConfig.list.matchesFilters(record, filters)
   );
+  const sortedRecords = [...filteredRecords].sort((leftRecord, rightRecord) => {
+    const activeColumn = moduleConfig.list.columns.find(
+      (column) => column.label === sortConfig.columnLabel
+    );
+
+    if (!activeColumn) {
+      return 0;
+    }
+
+    const leftValue = getComparableValue(activeColumn, leftRecord);
+    const rightValue = getComparableValue(activeColumn, rightRecord);
+    const directionMultiplier = sortConfig.direction === "asc" ? 1 : -1;
+
+    if (typeof leftValue === "number" && typeof rightValue === "number") {
+      return (leftValue - rightValue) * directionMultiplier;
+    }
+
+    return String(leftValue).localeCompare(String(rightValue), "pt-BR", {
+      numeric: true,
+      sensitivity: "base",
+    }) * directionMultiplier;
+  });
   const selectedId = searchParams.get("id");
   const selectedRecord =
-    filteredRecords.find((record) => record._id === selectedId) || filteredRecords[0] || null;
+    sortedRecords.find((record) => record._id === selectedId) || sortedRecords[0] || null;
 
   useEffect(() => {
     if (!selectedRecord || selectedRecord._id === selectedId) {
@@ -75,6 +115,22 @@ function CrudListPage({ moduleConfig }) {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set("id", recordId);
     setSearchParams(nextParams);
+  }
+
+  function handleSort(columnLabel) {
+    setSortConfig((current) => {
+      if (current.columnLabel !== columnLabel) {
+        return {
+          columnLabel,
+          direction: "asc",
+        };
+      }
+
+      return {
+        columnLabel,
+        direction: current.direction === "asc" ? "desc" : "asc",
+      };
+    });
   }
 
   function handleActionClick(event) {
@@ -209,13 +265,37 @@ function CrudListPage({ moduleConfig }) {
             <thead>
               <tr>
                 {moduleConfig.list.columns.map((column) => (
-                  <th key={column.label}>{column.label}</th>
+                  <th
+                    aria-sort={
+                      sortConfig.columnLabel === column.label
+                        ? sortConfig.direction === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : "none"
+                    }
+                    key={column.label}
+                  >
+                    <button
+                      className="table-sort-button"
+                      onClick={() => handleSort(column.label)}
+                      type="button"
+                    >
+                      <span>{column.label}</span>
+                      <span className="table-sort-indicator" aria-hidden="true">
+                        {sortConfig.columnLabel === column.label
+                          ? sortConfig.direction === "asc"
+                            ? "A-Z"
+                            : "Z-A"
+                          : "--"}
+                      </span>
+                    </button>
+                  </th>
                 ))}
                 <th>Acoes</th>
               </tr>
             </thead>
             <tbody>
-              {filteredRecords.map((record) => (
+              {sortedRecords.map((record) => (
                 <tr
                   className={record._id === selectedRecord?._id ? "data-table-row--active" : ""}
                   key={record._id}
@@ -254,7 +334,7 @@ function CrudListPage({ moduleConfig }) {
                   </td>
                 </tr>
               ))}
-              {!filteredRecords.length && requestState.status === "success" ? (
+              {!sortedRecords.length && requestState.status === "success" ? (
                 <tr>
                   <td className="data-table-empty" colSpan={moduleConfig.list.columns.length + 1}>
                     {moduleConfig.list.emptyState}

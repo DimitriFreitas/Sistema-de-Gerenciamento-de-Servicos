@@ -150,12 +150,25 @@ export const moduleConfigs = {
         },
       ],
       columns: [
-        { label: "Nome", render: (record) => record.nome || "Nao informado" },
-        { label: "CPF / CNPJ", render: (record) => record.cpf_cnpj || "Nao informado" },
-        { label: "Telefone", render: (record) => record.telefone || "Nao informado" },
+        {
+          label: "Nome",
+          render: (record) => record.nome || "Nao informado",
+          sortValue: (record) => record.nome || "",
+        },
+        {
+          label: "CPF / CNPJ",
+          render: (record) => record.cpf_cnpj || "Nao informado",
+          sortValue: (record) => record.cpf_cnpj || "",
+        },
+        {
+          label: "Telefone",
+          render: (record) => record.telefone || "Nao informado",
+          sortValue: (record) => record.telefone || "",
+        },
         {
           label: "Status",
           type: "status",
+          sortValue: (record) => normalizeClientStatus(record.status),
           render: (record) => ({
             text: normalizeClientStatus(record.status),
             tone: getClientStatusTone(record.status),
@@ -356,11 +369,31 @@ export const moduleConfigs = {
         },
       ],
       columns: [
-        { label: "Nome", render: (record) => record.nome || "Nao informado" },
-        { label: "Descricao", render: (record) => record.descricao || "Nao informado" },
-        { label: "Estoque atual", render: (record) => String(record.quantidadeAtual ?? 0) },
-        { label: "Estoque minimo", render: (record) => String(record.quantidadeMinima ?? 0) },
-        { label: "Custo", render: (record) => formatCurrency(record.custo) },
+        {
+          label: "Nome",
+          render: (record) => record.nome || "Nao informado",
+          sortValue: (record) => record.nome || "",
+        },
+        {
+          label: "Descricao",
+          render: (record) => record.descricao || "Nao informado",
+          sortValue: (record) => record.descricao || "",
+        },
+        {
+          label: "Estoque atual",
+          render: (record) => String(record.quantidadeAtual ?? 0),
+          sortValue: (record) => Number(record.quantidadeAtual ?? 0),
+        },
+        {
+          label: "Estoque minimo",
+          render: (record) => String(record.quantidadeMinima ?? 0),
+          sortValue: (record) => Number(record.quantidadeMinima ?? 0),
+        },
+        {
+          label: "Custo",
+          render: (record) => formatCurrency(record.custo),
+          sortValue: (record) => Number(record.custo ?? 0),
+        },
       ],
       matchesFilters(record, filters) {
         const currentAmount = Number(record.quantidadeAtual ?? 0);
