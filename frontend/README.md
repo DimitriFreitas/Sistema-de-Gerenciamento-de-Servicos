@@ -248,7 +248,6 @@ Quando chegar a hora de integrar de verdade:
 Existem arquivos em `src/pages/` que parecem ser legados ou não fazem parte do fluxo principal atual:
 
 - `src/pages/Clientes.jsx`
-- `src/pages/Dashboard.jsx`
 - `src/pages/Produtos.jsx`
 - `src/pages/ModuloPlaceholder.jsx`
 
