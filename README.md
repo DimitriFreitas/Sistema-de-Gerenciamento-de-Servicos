@@ -16,7 +16,6 @@ Scrum
 📁 Estrutura
 - backend/
 - frontend/
-- database/
 - docs/
 
 ## Como rodar backend e frontend com um comando
