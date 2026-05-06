@@ -547,6 +547,7 @@ button {
 .fact-card {
   display: grid;
   gap: 6px;
+  min-width: 0;
   padding: 16px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--line);
@@ -562,6 +563,9 @@ button {
 
 .fact-card strong {
   font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .table-scroll {

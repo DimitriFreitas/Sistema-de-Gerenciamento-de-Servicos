@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { orderedModules } from "../data/moduleConfigs";
 
 function Home() {
@@ -7,14 +8,6 @@ function Home() {
         <article className="hero-panel hero-panel--accent">
           <p className="eyebrow">Sistema principal</p>
           <h2>Painel de controle</h2>
-          <div className="hero-actions">
-            <div className="button button--light">
-              Abrir Clientes
-            </div>
-            <div className="button button--ghost-light">
-              Abrir Produtos
-            </div>
-          </div>
         </article>
       </section>
 
@@ -29,13 +22,14 @@ function Home() {
 
           <div className="module-grid">
             {orderedModules.map((module, index) => (
-              <div
+              <Link
                 className={`module-tile${index === 0 ? " module-tile--primary" : ""}`}
                 key={module.key}
+                to={module.basePath}
               >
                 <span>{module.label}</span>
                 <small>{module.summary}</small>
-              </div>
+              </Link>
             ))}
           </div>
         </article>
