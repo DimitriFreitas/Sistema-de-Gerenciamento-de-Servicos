@@ -17,6 +17,13 @@ export function getRequestErrorResponse(error, fallbackMessage) {
     };
   }
 
+  if (error.code === 11000) {
+    return {
+      status: 400,
+      body: { mensagem: "Ja existe um registro com esses dados." },
+    };
+  }
+
   return {
     status: 500,
     body: { mensagem: fallbackMessage || error.message },

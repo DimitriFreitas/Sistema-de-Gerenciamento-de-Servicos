@@ -1,6 +1,28 @@
 import mongoose from "mongoose";
 
+const LocalEstoqueSchema = new mongoose.Schema(
+  {
+    localizacao: {
+      type: String,
+      required: [true, "Localizacao e obrigatoria."],
+      trim: true,
+    },
+    quantidade: {
+      type: Number,
+      default: 0,
+      min: [0, "Quantidade do local nao pode ser negativa."],
+    },
+  },
+  { _id: false }
+);
+
 const ProdutoSchema = new mongoose.Schema({
+  codigo: {
+    type: String,
+    trim: true,
+    unique: true,
+    sparse: true,
+  },
   nome: {
     type: String,
     required: [true, "Nome do produto e obrigatorio."],
@@ -27,6 +49,19 @@ const ProdutoSchema = new mongoose.Schema({
   quantidadeMinima: {
     type: Number,
     min: [0, "Quantidade minima nao pode ser negativa."],
+  },
+  unidadeMedida: {
+    type: String,
+    trim: true,
+  },
+  localizacao: {
+    type: String,
+    trim: true,
+  },
+  locaisEstoque: [LocalEstoqueSchema],
+  fornecedor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Fornecedor",
   },
   dataValidade: Date,
   status: {
