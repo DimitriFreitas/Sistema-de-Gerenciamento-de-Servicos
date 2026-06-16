@@ -89,6 +89,259 @@ function buildProductPayload(values) {
   );
 }
 
+function getRecordLabel(record, fields = ["nome", "razaoSocial", "nomeFantasia", "tipo"]) {
+  if (!record) {
+    return "Nao informado";
+  }
+
+  for (const field of fields) {
+    if (record[field]) {
+      return record[field];
+    }
+  }
+
+  return record._id || "Nao informado";
+}
+
+function getReferenceLabel(reference, fields) {
+  if (!reference) {
+    return "Nao informado";
+  }
+
+  if (typeof reference === "object") {
+    return getRecordLabel(reference, fields);
+  }
+
+  return reference;
+}
+
+function toId(value) {
+  if (value && typeof value === "object") {
+    return value._id || value.id || "";
+  }
+
+  return String(value ?? "").trim();
+}
+
+function toOptionalNumber(value) {
+  if (value === "" || value === null || value === undefined) {
+    return undefined;
+  }
+
+  return Number(value);
+}
+
+function compactPayload(payload) {
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+
+      return value !== undefined && value !== "";
+    })
+  );
+}
+
+function parseList(value) {
+  return String(value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseJsonArray(value) {
+  const trimmedValue = String(value ?? "").trim();
+
+  if (!trimmedValue) {
+    return [];
+  }
+
+  try {
+    const parsedValue = JSON.parse(trimmedValue);
+
+    return Array.isArray(parsedValue) ? parsedValue : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeProductsUsed(products) {
+  return products.map((item) => ({
+    ...item,
+    produto: toId(item.produto),
+  }));
+}
+
+function formatJsonArray(value) {
+  return Array.isArray(value) && value.length ? JSON.stringify(value, null, 2) : "";
+}
+
+function normalizeStatusPayload(status) {
+  return normalizeText(status) === "inativo" ? "inativo" : "ativo";
+}
+
+function formatMovementType(type) {
+  const normalizedType = normalizeText(type);
+
+  if (normalizedType === "saida") {
+    return "Saida";
+  }
+
+  if (normalizedType === "ajuste") {
+    return "Ajuste";
+  }
+
+  if (normalizedType === "transferencia") {
+    return "Transferencia";
+  }
+
+  return "Entrada";
+}
+
+function normalizeMovementType(type) {
+  const normalizedType = normalizeText(type);
+
+  if (normalizedType === "saida") {
+    return "saida";
+  }
+
+  if (normalizedType === "ajuste") {
+    return "ajuste";
+  }
+
+  if (normalizedType === "transferencia") {
+    return "transferencia";
+  }
+
+  return "entrada";
+}
+
+function formatServiceStatus(status) {
+  const normalizedStatus = normalizeText(status);
+
+  if (normalizedStatus === "em_andamento") {
+    return "Em andamento";
+  }
+
+  if (normalizedStatus === "concluido") {
+    return "Concluido";
+  }
+
+  if (normalizedStatus === "cancelado") {
+    return "Cancelado";
+  }
+
+  if (normalizedStatus === "inativo") {
+    return "Inativo";
+  }
+
+  return "Agendado";
+}
+
+function normalizeServiceStatus(status) {
+  const normalizedStatus = normalizeText(status).replaceAll(" ", "_");
+
+  if (normalizedStatus === "em_andamento") {
+    return "em_andamento";
+  }
+
+  if (normalizedStatus === "concluido") {
+    return "concluido";
+  }
+
+  if (normalizedStatus === "cancelado") {
+    return "cancelado";
+  }
+
+  if (normalizedStatus === "inativo") {
+    return "inativo";
+  }
+
+  return "agendado";
+}
+
+function getServiceStatusTone(status) {
+  const normalizedStatus = normalizeServiceStatus(status);
+
+  if (normalizedStatus === "concluido") {
+    return "ativo";
+  }
+
+  if (normalizedStatus === "cancelado" || normalizedStatus === "inativo") {
+    return "inativo";
+  }
+
+  return "pendente";
+}
+
+function buildSupplierPayload(values) {
+  return compactPayload({
+    razaoSocial: values.razaoSocial.trim(),
+    nomeFantasia: values.nomeFantasia.trim(),
+    cnpj: formatCpfCnpj(values.cnpj),
+    telefone: formatPhone(values.telefone),
+    email: values.email.trim(),
+    endereco: values.endereco.trim(),
+    status: normalizeStatusPayload(values.status),
+  });
+}
+
+function buildEmployeePayload(values) {
+  return compactPayload({
+    nome: values.nome.trim(),
+    cpf: formatCpfCnpj(values.cpf),
+    rg: values.rg.trim(),
+    email: values.email.trim(),
+    telefone: formatPhone(values.telefone),
+    endereco: values.endereco.trim(),
+    cargo: values.cargo.trim(),
+    setor: values.setor.trim(),
+    tipoVinculo: values.tipoVinculo.trim(),
+    permissoes: parseList(values.permissoes),
+    dataAdmissao: values.dataAdmissao || undefined,
+    status: normalizeStatusPayload(values.status),
+  });
+}
+
+function buildStockPayload(values) {
+  const tipo = normalizeMovementType(values.tipo);
+
+  return compactPayload({
+    produto: toId(values.produto),
+    fornecedor: toId(values.fornecedor),
+    tipo,
+    quantidade: toOptionalNumber(values.quantidade),
+    valorUnitario: toOptionalNumber(values.valorUnitario),
+    localOrigem: values.localOrigem.trim(),
+    localDestino: values.localDestino.trim(),
+    quantidadeNova: tipo === "ajuste" ? toOptionalNumber(values.quantidadeNova) : undefined,
+    responsavel: values.responsavel.trim(),
+    motivo: values.motivo.trim(),
+    observacao: values.observacao.trim(),
+  });
+}
+
+function buildServicePayload(values) {
+  return compactPayload({
+    cliente: toId(values.cliente),
+    tipo: values.tipo.trim(),
+    descricao: values.descricao.trim(),
+    dataAgendamento: values.dataAgendamento || undefined,
+    dataInicio: values.dataInicio || undefined,
+    dataConclusao: values.dataConclusao || undefined,
+    garantiaAte: values.garantiaAte || undefined,
+    equipe: parseList(values.equipe),
+    produtosUtilizados: normalizeProductsUsed(parseJsonArray(values.produtosUtilizados)),
+    valorMaoDeObra: toOptionalNumber(values.valorMaoDeObra),
+    valorProdutos: toOptionalNumber(values.valorProdutos),
+    valorTotal: toOptionalNumber(values.valorTotal),
+    status: normalizeServiceStatus(values.status),
+    responsavel: values.responsavel.trim(),
+    observacao: values.observacao.trim(),
+  });
+}
+
 function requiredMessage(label) {
   return `${label} e obrigatorio.`;
 }
@@ -123,6 +376,34 @@ function validateCpfCnpj(value) {
   return isValidCpfCnpj(value) ? "" : "CPF ou CNPJ invalido.";
 }
 
+function validateCpf(value) {
+  const digits = String(value ?? "").replaceAll(/\D/g, "");
+
+  if (!digits) {
+    return requiredMessage("CPF");
+  }
+
+  if (digits.length !== 11) {
+    return "Informe 11 digitos para CPF.";
+  }
+
+  return isValidCpfCnpj(value) ? "" : "CPF invalido.";
+}
+
+function validateCnpj(value) {
+  const digits = String(value ?? "").replaceAll(/\D/g, "");
+
+  if (!digits) {
+    return requiredMessage("CNPJ");
+  }
+
+  if (digits.length !== 14) {
+    return "Informe 14 digitos para CNPJ.";
+  }
+
+  return isValidCpfCnpj(value) ? "" : "CNPJ invalido.";
+}
+
 function validatePhone(value) {
   if (!String(value ?? "").trim()) {
     return "";
@@ -155,6 +436,22 @@ function validateProductDate(value) {
   return Number.isNaN(parsedDate.getTime()) ? "Informe uma data valida." : "";
 }
 
+function validateJsonArray(value, label) {
+  const trimmedValue = String(value ?? "").trim();
+
+  if (!trimmedValue) {
+    return "";
+  }
+
+  try {
+    const parsedValue = JSON.parse(trimmedValue);
+
+    return Array.isArray(parsedValue) ? "" : `${label} deve ser uma lista JSON.`;
+  } catch {
+    return `${label} deve ser uma lista JSON valida.`;
+  }
+}
+
 export const moduleConfigs = {
   clientes: {
     key: "clientes",
@@ -163,6 +460,8 @@ export const moduleConfigs = {
     singularLabel: "cliente",
     basePath: "/clientes",
     contextLabel: "Cadastro e atendimento",
+    summary:
+      "Modulo de clientes com consulta, cadastro, edicao e inativacao integrados ao backend.",
 
     routeMeta: {
       base: {
@@ -651,6 +950,723 @@ export const moduleConfigs = {
       },
     },
   },
+  fornecedores: {
+    key: "fornecedores",
+    apiResource: "fornecedores",
+    label: "Fornecedores",
+    singularLabel: "fornecedor",
+    basePath: "/fornecedores",
+    contextLabel: "Compras e suprimentos",
+    summary:
+      "Modulo de fornecedores com cadastro, consulta, edicao e inativacao de parceiros.",
+    routeMeta: {
+      base: { eyebrow: "Modulo", label: "Fornecedores" },
+      list: { eyebrow: "Consulta", label: "Consultar fornecedores" },
+      create: { eyebrow: "Cadastro", label: "Novo fornecedor" },
+      edit: { eyebrow: "Edicao", label: "Editar fornecedor" },
+      deactivate: { eyebrow: "Inativacao", label: "Inativar fornecedor" },
+    },
+    actions: [
+      { label: "Menu do modulo", path: "/fornecedores" },
+      { label: "Consultar fornecedores", path: "/fornecedores/listar" },
+      { label: "Novo fornecedor", path: "/fornecedores/novo" },
+      { label: "Editar fornecedor", path: "/fornecedores/editar" },
+      { label: "Inativar fornecedor", path: "/fornecedores/inativar" },
+    ],
+    list: {
+      heroTitle: "Consultar fornecedores",
+      emptyState: "Nenhum fornecedor encontrado com os filtros aplicados.",
+      filters: [
+        { name: "razaoSocial", label: "Razao social", placeholder: "Buscar por razao social" },
+        { name: "cnpj", label: "CNPJ", placeholder: "Filtrar por CNPJ" },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Todos", "Ativo", "Inativo"],
+          defaultValue: "Todos",
+        },
+      ],
+      columns: [
+        {
+          label: "Razao social",
+          render: (record) => record.razaoSocial || "Nao informado",
+          sortValue: (record) => record.razaoSocial || "",
+        },
+        {
+          label: "Nome fantasia",
+          render: (record) => record.nomeFantasia || "Nao informado",
+          sortValue: (record) => record.nomeFantasia || "",
+        },
+        {
+          label: "CNPJ",
+          render: (record) => formatCpfCnpj(record.cnpj) || "Nao informado",
+          sortValue: (record) => record.cnpj || "",
+        },
+        {
+          label: "Telefone",
+          render: (record) => formatPhone(record.telefone) || "Nao informado",
+          sortValue: (record) => record.telefone || "",
+        },
+        {
+          label: "Status",
+          type: "status",
+          sortValue: (record) => normalizeClientStatus(record.status),
+          render: (record) => ({
+            text: normalizeClientStatus(record.status),
+            tone: getClientStatusTone(record.status),
+          }),
+        },
+      ],
+      matchesFilters(record, filters) {
+        const status = normalizeClientStatus(record.status);
+
+        return (
+          normalizeText(record.razaoSocial).includes(normalizeText(filters.razaoSocial)) &&
+          onlyDigits(record.cnpj).includes(onlyDigits(filters.cnpj)) &&
+          (filters.status === "Todos" || status === filters.status)
+        );
+      },
+      detailCard: {
+        title: "Detalhes do fornecedor",
+        tabs: ["Cadastro", "Contato", "Status"],
+        facts(record) {
+          if (!record) {
+            return [];
+          }
+
+          return [
+            { label: "Razao social", value: record.razaoSocial || "Nao informado" },
+            { label: "Nome fantasia", value: record.nomeFantasia || "Nao informado" },
+            { label: "CNPJ", value: formatCpfCnpj(record.cnpj) || "Nao informado" },
+            { label: "E-mail", value: record.email || "Nao informado" },
+            { label: "Status", value: normalizeClientStatus(record.status) },
+          ];
+        },
+      },
+    },
+    create: {
+      heroTitle: "Cadastrar fornecedor",
+      sideNotes: [
+        "Razao social e CNPJ sao obrigatorios.",
+        "CNPJ, telefone e e-mail seguem as validacoes do backend.",
+      ],
+      fields: [
+        { name: "razaoSocial", label: "Razao social", placeholder: "Informe a razao social", validate: (value) => validateRequired(value, "Razao social") },
+        { name: "nomeFantasia", label: "Nome fantasia", placeholder: "Informe o nome fantasia" },
+        { name: "cnpj", label: "CNPJ", placeholder: "00.000.000/0000-00", formatInput: formatCpfCnpj, validate: validateCnpj },
+        { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
+        { name: "email", label: "E-mail", type: "email", placeholder: "fornecedor@empresa.com", validate: (value) => (String(value ?? "").trim() ? validateEmail(value) : "") },
+        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+      ],
+      submitLabel: "Salvar fornecedor",
+      successMessage: "Fornecedor cadastrado com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/fornecedores/listar",
+      toPayload(values) {
+        return buildSupplierPayload({ ...values, status: "ativo" });
+      },
+    },
+    edit: {
+      heroTitle: "Editar fornecedor",
+      alert: "Selecione um fornecedor na consulta para abrir a edicao com o registro correto.",
+      fields: [
+        { name: "razaoSocial", label: "Razao social", placeholder: "Informe a razao social", validate: (value) => validateRequired(value, "Razao social") },
+        { name: "nomeFantasia", label: "Nome fantasia", placeholder: "Informe o nome fantasia" },
+        { name: "cnpj", label: "CNPJ", placeholder: "00.000.000/0000-00", formatInput: formatCpfCnpj, validate: validateCnpj },
+        { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
+        { name: "email", label: "E-mail", type: "email", placeholder: "fornecedor@empresa.com", validate: (value) => (String(value ?? "").trim() ? validateEmail(value) : "") },
+        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Ativo", "Inativo"],
+          defaultValue: "Ativo",
+          formatInput: normalizeClientStatus,
+        },
+      ],
+      submitLabel: "Salvar alteracoes",
+      successMessage: "Fornecedor atualizado com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/fornecedores/listar",
+      toPayload(values) {
+        return buildSupplierPayload(values);
+      },
+    },
+    deactivate: {
+      heroTitle: "Inativar fornecedor",
+      warning:
+        "A inativacao altera o status do fornecedor sem remover o cadastro.",
+      optionalField: {
+        label: "Observacao da inativacao",
+        placeholder: "Registre uma observacao interna antes de inativar.",
+      },
+      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
+      successMessage: "Fornecedor inativado com sucesso.",
+      facts(record) {
+        if (!record) {
+          return [];
+        }
+
+        return [
+          { label: "Fornecedor", value: record.razaoSocial || "Nao informado" },
+          { label: "CNPJ", value: formatCpfCnpj(record.cnpj) || "Nao informado" },
+          { label: "Status atual", value: normalizeClientStatus(record.status) },
+        ];
+      },
+      asyncAction: "update",
+      buildPayload(record) {
+        return { ...record, status: "inativo" };
+      },
+    },
+  },
+  funcionarios: {
+    key: "funcionarios",
+    apiResource: "funcionarios",
+    label: "Funcionarios",
+    singularLabel: "funcionario",
+    basePath: "/funcionarios",
+    contextLabel: "Equipe e permissoes",
+    summary:
+      "Modulo de funcionarios com cadastro, consulta, edicao e desligamento operacional.",
+    routeMeta: {
+      base: { eyebrow: "Modulo", label: "Funcionarios" },
+      list: { eyebrow: "Consulta", label: "Consultar funcionarios" },
+      create: { eyebrow: "Cadastro", label: "Novo funcionario" },
+      edit: { eyebrow: "Edicao", label: "Editar funcionario" },
+      deactivate: { eyebrow: "Inativacao", label: "Inativar funcionario" },
+    },
+    actions: [
+      { label: "Menu do modulo", path: "/funcionarios" },
+      { label: "Consultar funcionarios", path: "/funcionarios/listar" },
+      { label: "Novo funcionario", path: "/funcionarios/novo" },
+      { label: "Editar funcionario", path: "/funcionarios/editar" },
+      { label: "Inativar funcionario", path: "/funcionarios/inativar" },
+    ],
+    list: {
+      heroTitle: "Consultar funcionarios",
+      emptyState: "Nenhum funcionario encontrado com os filtros aplicados.",
+      filters: [
+        { name: "nome", label: "Nome", placeholder: "Buscar por nome" },
+        { name: "cpf", label: "CPF", placeholder: "Filtrar por CPF" },
+        { name: "setor", label: "Setor", placeholder: "Filtrar por setor" },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Todos", "Ativo", "Inativo"],
+          defaultValue: "Todos",
+        },
+      ],
+      columns: [
+        { label: "Nome", render: (record) => record.nome || "Nao informado", sortValue: (record) => record.nome || "" },
+        { label: "CPF", render: (record) => formatCpfCnpj(record.cpf) || "Nao informado", sortValue: (record) => record.cpf || "" },
+        { label: "Cargo", render: (record) => record.cargo || "Nao informado", sortValue: (record) => record.cargo || "" },
+        { label: "Setor", render: (record) => record.setor || "Nao informado", sortValue: (record) => record.setor || "" },
+        {
+          label: "Status",
+          type: "status",
+          sortValue: (record) => normalizeClientStatus(record.status),
+          render: (record) => ({
+            text: normalizeClientStatus(record.status),
+            tone: getClientStatusTone(record.status),
+          }),
+        },
+      ],
+      matchesFilters(record, filters) {
+        const status = normalizeClientStatus(record.status);
+
+        return (
+          normalizeText(record.nome).includes(normalizeText(filters.nome)) &&
+          onlyDigits(record.cpf).includes(onlyDigits(filters.cpf)) &&
+          normalizeText(record.setor).includes(normalizeText(filters.setor)) &&
+          (filters.status === "Todos" || status === filters.status)
+        );
+      },
+      detailCard: {
+        title: "Detalhes do funcionario",
+        tabs: ["Cadastro", "Vinculo", "Status"],
+        facts(record) {
+          if (!record) {
+            return [];
+          }
+
+          return [
+            { label: "Funcionario", value: record.nome || "Nao informado" },
+            { label: "CPF", value: formatCpfCnpj(record.cpf) || "Nao informado" },
+            { label: "Cargo", value: record.cargo || "Nao informado" },
+            { label: "Setor", value: record.setor || "Nao informado" },
+            { label: "Status", value: normalizeClientStatus(record.status) },
+          ];
+        },
+      },
+    },
+    create: {
+      heroTitle: "Cadastrar funcionario",
+      sideNotes: [
+        "Nome, CPF, cargo, setor e tipo de vinculo sao obrigatorios.",
+        "Permissoes devem ser separadas por virgula.",
+      ],
+      fields: [
+        { name: "nome", label: "Nome", placeholder: "Informe o nome", validate: (value) => validateRequired(value, "Nome") },
+        { name: "cpf", label: "CPF", placeholder: "000.000.000-00", formatInput: formatCpfCnpj, validate: validateCpf },
+        { name: "rg", label: "RG", placeholder: "Informe o RG" },
+        { name: "email", label: "E-mail", type: "email", placeholder: "funcionario@empresa.com", validate: (value) => (String(value ?? "").trim() ? validateEmail(value) : "") },
+        { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
+        { name: "cargo", label: "Cargo", placeholder: "Informe o cargo", validate: (value) => validateRequired(value, "Cargo") },
+        { name: "setor", label: "Setor", placeholder: "Informe o setor", validate: (value) => validateRequired(value, "Setor") },
+        { name: "tipoVinculo", label: "Tipo de vinculo", placeholder: "CLT, PJ, temporario", validate: (value) => validateRequired(value, "Tipo de vinculo") },
+        { name: "dataAdmissao", label: "Data de admissao", type: "date", validate: validateProductDate },
+        { name: "permissoes", label: "Permissoes", placeholder: "admin, estoque, servicos", fullWidth: true },
+        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+      ],
+      submitLabel: "Salvar funcionario",
+      successMessage: "Funcionario cadastrado com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/funcionarios/listar",
+      toPayload(values) {
+        return buildEmployeePayload({ ...values, status: "ativo" });
+      },
+    },
+    edit: {
+      heroTitle: "Editar funcionario",
+      alert: "Selecione um funcionario na consulta para abrir a edicao com o registro correto.",
+      fields: [
+        { name: "nome", label: "Nome", placeholder: "Informe o nome", validate: (value) => validateRequired(value, "Nome") },
+        { name: "cpf", label: "CPF", placeholder: "000.000.000-00", formatInput: formatCpfCnpj, validate: validateCpf },
+        { name: "rg", label: "RG", placeholder: "Informe o RG" },
+        { name: "email", label: "E-mail", type: "email", placeholder: "funcionario@empresa.com", validate: (value) => (String(value ?? "").trim() ? validateEmail(value) : "") },
+        { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
+        { name: "cargo", label: "Cargo", placeholder: "Informe o cargo", validate: (value) => validateRequired(value, "Cargo") },
+        { name: "setor", label: "Setor", placeholder: "Informe o setor", validate: (value) => validateRequired(value, "Setor") },
+        { name: "tipoVinculo", label: "Tipo de vinculo", placeholder: "CLT, PJ, temporario", validate: (value) => validateRequired(value, "Tipo de vinculo") },
+        { name: "dataAdmissao", label: "Data de admissao", type: "date", validate: validateProductDate },
+        { name: "permissoes", label: "Permissoes", placeholder: "admin, estoque, servicos", fullWidth: true, formatInput: (value) => Array.isArray(value) ? value.join(", ") : value },
+        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Ativo", "Inativo"],
+          defaultValue: "Ativo",
+          formatInput: normalizeClientStatus,
+        },
+      ],
+      submitLabel: "Salvar alteracoes",
+      successMessage: "Funcionario atualizado com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/funcionarios/listar",
+      toPayload(values) {
+        return buildEmployeePayload(values);
+      },
+    },
+    deactivate: {
+      heroTitle: "Inativar funcionario",
+      warning:
+        "A inativacao chama o endpoint de desligamento e remove permissoes do funcionario.",
+      optionalFields: [
+        { name: "responsavelDesligamento", label: "Responsavel", placeholder: "Responsavel pelo desligamento" },
+        { name: "motivoDesligamento", label: "Motivo", placeholder: "Motivo do desligamento" },
+        { name: "observacao", label: "Observacao", placeholder: "Observacao interna" },
+      ],
+      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
+      successMessage: "Funcionario inativado com sucesso.",
+      requestPathSuffix: "/inativar",
+      facts(record) {
+        if (!record) {
+          return [];
+        }
+
+        return [
+          { label: "Funcionario", value: record.nome || "Nao informado" },
+          { label: "CPF", value: formatCpfCnpj(record.cpf) || "Nao informado" },
+          { label: "Setor", value: record.setor || "Nao informado" },
+          { label: "Status atual", value: normalizeClientStatus(record.status) },
+        ];
+      },
+      asyncAction: "update",
+      buildPayload(record, values = {}) {
+        return {
+          responsavelDesligamento: values.responsavelDesligamento?.trim() || "Sistema",
+          motivoDesligamento: values.motivoDesligamento?.trim() || "Inativacao pelo sistema",
+          observacao: values.observacao?.trim() || "",
+        };
+      },
+    },
+  },
+  estoque: {
+    key: "estoque",
+    apiResource: "estoque",
+    label: "Estoque",
+    singularLabel: "movimentacao",
+    basePath: "/estoque",
+    contextLabel: "Movimentacao de estoque",
+    summary:
+      "Modulo de estoque com entradas, saidas, ajustes, transferencias e reversao de movimentacoes.",
+    routeMeta: {
+      base: { eyebrow: "Modulo", label: "Estoque" },
+      list: { eyebrow: "Consulta", label: "Consultar estoque" },
+      create: { eyebrow: "Movimentacao", label: "Nova movimentacao" },
+      edit: { eyebrow: "Edicao", label: "Editar movimentacao" },
+      deactivate: { eyebrow: "Reversao", label: "Remover movimentacao" },
+    },
+    actions: [
+      { label: "Menu do modulo", path: "/estoque" },
+      { label: "Consultar estoque", path: "/estoque/listar" },
+      { label: "Nova movimentacao", path: "/estoque/novo" },
+      { label: "Editar movimentacao", path: "/estoque/editar" },
+      { label: "Remover movimentacao", path: "/estoque/inativar" },
+    ],
+    list: {
+      heroTitle: "Consultar movimentacoes",
+      emptyState: "Nenhuma movimentacao encontrada com os filtros aplicados.",
+      filters: [
+        { name: "produto", label: "Produto", placeholder: "Nome ou ID do produto" },
+        {
+          name: "tipo",
+          label: "Tipo",
+          type: "select",
+          options: ["Todos", "Entrada", "Saida", "Ajuste", "Transferencia"],
+          defaultValue: "Todos",
+        },
+        { name: "responsavel", label: "Responsavel", placeholder: "Filtrar por responsavel" },
+      ],
+      columns: [
+        {
+          label: "Produto",
+          render: (record) => getReferenceLabel(record.produto, ["nome"]),
+          sortValue: (record) => getReferenceLabel(record.produto, ["nome"]),
+        },
+        {
+          label: "Tipo",
+          render: (record) => formatMovementType(record.tipo),
+          sortValue: (record) => formatMovementType(record.tipo),
+        },
+        {
+          label: "Quantidade",
+          render: (record) => String(record.quantidade ?? 0),
+          sortValue: (record) => Number(record.quantidade ?? 0),
+        },
+        {
+          label: "Valor total",
+          render: (record) => formatCurrency(record.valorTotal),
+          sortValue: (record) => Number(record.valorTotal ?? 0),
+        },
+        {
+          label: "Data",
+          render: (record) => formatDate(record.data),
+          sortValue: (record) => record.data || "",
+        },
+      ],
+      matchesFilters(record, filters) {
+        const produto = getReferenceLabel(record.produto, ["nome"]);
+        const tipo = formatMovementType(record.tipo);
+
+        return (
+          normalizeText(produto).includes(normalizeText(filters.produto)) &&
+          (filters.tipo === "Todos" || tipo === filters.tipo) &&
+          normalizeText(record.responsavel).includes(normalizeText(filters.responsavel))
+        );
+      },
+      detailCard: {
+        title: "Detalhes da movimentacao",
+        tabs: ["Produto", "Movimentacao", "Auditoria"],
+        facts(record) {
+          if (!record) {
+            return [];
+          }
+
+          return [
+            { label: "Produto", value: getReferenceLabel(record.produto, ["nome"]) },
+            { label: "Fornecedor", value: getReferenceLabel(record.fornecedor, ["razaoSocial", "nomeFantasia"]) },
+            { label: "Tipo", value: formatMovementType(record.tipo) },
+            { label: "Quantidade", value: String(record.quantidade ?? 0) },
+            { label: "Responsavel", value: record.responsavel || "Nao informado" },
+          ];
+        },
+      },
+    },
+    create: {
+      heroTitle: "Registrar movimentacao",
+      sideNotes: [
+        "Informe o ID do produto cadastrado.",
+        "A rota principal aceita entrada e saida. Ajuste e transferencia podem ser mantidos pela API.",
+      ],
+      fields: [
+        { name: "produto", label: "ID do produto", placeholder: "ObjectId do produto", validate: (value) => validateRequired(value, "ID do produto"), formatInput: toId },
+        { name: "fornecedor", label: "ID do fornecedor", placeholder: "ObjectId do fornecedor", formatInput: toId },
+        {
+          name: "tipo",
+          label: "Tipo",
+          type: "select",
+          options: ["Entrada", "Saida"],
+          defaultValue: "Entrada",
+          formatInput: formatMovementType,
+        },
+        { name: "quantidade", label: "Quantidade", type: "number", min: 1, placeholder: "1", validate: (value) => validateNonNegativeNumber(value, "Quantidade", { required: true }) },
+        { name: "valorUnitario", label: "Valor unitario", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor unitario") },
+        { name: "localOrigem", label: "Local origem", placeholder: "Geral" },
+        { name: "localDestino", label: "Local destino", placeholder: "Geral" },
+        { name: "responsavel", label: "Responsavel", placeholder: "Nome do responsavel" },
+        { name: "motivo", label: "Motivo", placeholder: "Motivo da movimentacao", fullWidth: true },
+        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+      ],
+      submitLabel: "Salvar movimentacao",
+      successMessage: "Movimentacao cadastrada com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/estoque/listar",
+      toPayload(values) {
+        return buildStockPayload(values);
+      },
+    },
+    edit: {
+      heroTitle: "Editar movimentacao",
+      alert: "Selecione uma movimentacao na consulta para abrir a edicao com o registro correto.",
+      fields: [
+        { name: "produto", label: "ID do produto", placeholder: "ObjectId do produto", validate: (value) => validateRequired(value, "ID do produto"), formatInput: toId },
+        { name: "fornecedor", label: "ID do fornecedor", placeholder: "ObjectId do fornecedor", formatInput: toId },
+        {
+          name: "tipo",
+          label: "Tipo",
+          type: "select",
+          options: ["Entrada", "Saida", "Ajuste", "Transferencia"],
+          defaultValue: "Entrada",
+          formatInput: formatMovementType,
+        },
+        { name: "quantidade", label: "Quantidade", type: "number", min: 1, placeholder: "1", validate: (value) => validateNonNegativeNumber(value, "Quantidade", { required: true }) },
+        { name: "quantidadeNova", label: "Quantidade nova", type: "number", min: 0, placeholder: "0", validate: (value) => validateNonNegativeNumber(value, "Quantidade nova") },
+        { name: "valorUnitario", label: "Valor unitario", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor unitario") },
+        { name: "localOrigem", label: "Local origem", placeholder: "Geral" },
+        { name: "localDestino", label: "Local destino", placeholder: "Geral" },
+        { name: "responsavel", label: "Responsavel", placeholder: "Nome do responsavel" },
+        { name: "motivo", label: "Motivo", placeholder: "Motivo da movimentacao", fullWidth: true },
+        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+      ],
+      submitLabel: "Salvar alteracoes",
+      successMessage: "Movimentacao atualizada com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/estoque/listar",
+      toPayload(values) {
+        return buildStockPayload(values);
+      },
+    },
+    deactivate: {
+      heroTitle: "Remover movimentacao",
+      warning:
+        "A remocao reverte a movimentacao no estoque antes de excluir o registro.",
+      optionalField: {
+        label: "Observacao da remocao",
+        placeholder: "Registre uma observacao interna antes de remover.",
+      },
+      actionButtons: [{ label: "Confirmar remocao", variant: "danger", action: "confirm" }],
+      successMessage: "Movimentacao removida com sucesso.",
+      asyncAction: "delete",
+      facts(record) {
+        if (!record) {
+          return [];
+        }
+
+        return [
+          { label: "Produto", value: getReferenceLabel(record.produto, ["nome"]) },
+          { label: "Tipo", value: formatMovementType(record.tipo) },
+          { label: "Quantidade", value: String(record.quantidade ?? 0) },
+          { label: "Data", value: formatDate(record.data) },
+        ];
+      },
+    },
+  },
+  servicos: {
+    key: "servicos",
+    apiResource: "servicos",
+    label: "Servicos",
+    singularLabel: "servico",
+    basePath: "/servicos",
+    contextLabel: "Ordem de servico",
+    summary:
+      "Modulo de servicos com agenda, execucao, valores, equipe e cancelamento.",
+    routeMeta: {
+      base: { eyebrow: "Modulo", label: "Servicos" },
+      list: { eyebrow: "Consulta", label: "Consultar servicos" },
+      create: { eyebrow: "Cadastro", label: "Novo servico" },
+      edit: { eyebrow: "Edicao", label: "Editar servico" },
+      deactivate: { eyebrow: "Cancelamento", label: "Cancelar servico" },
+    },
+    actions: [
+      { label: "Menu do modulo", path: "/servicos" },
+      { label: "Consultar servicos", path: "/servicos/listar" },
+      { label: "Novo servico", path: "/servicos/novo" },
+      { label: "Editar servico", path: "/servicos/editar" },
+      { label: "Cancelar servico", path: "/servicos/inativar" },
+    ],
+    list: {
+      heroTitle: "Consultar servicos",
+      emptyState: "Nenhum servico encontrado com os filtros aplicados.",
+      filters: [
+        { name: "cliente", label: "Cliente", placeholder: "Nome ou ID do cliente" },
+        { name: "tipo", label: "Tipo", placeholder: "Filtrar por tipo" },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Todos", "Agendado", "Em andamento", "Concluido", "Cancelado", "Inativo"],
+          defaultValue: "Todos",
+        },
+      ],
+      columns: [
+        {
+          label: "Cliente",
+          render: (record) => getReferenceLabel(record.cliente, ["nome"]),
+          sortValue: (record) => getReferenceLabel(record.cliente, ["nome"]),
+        },
+        { label: "Tipo", render: (record) => record.tipo || "Nao informado", sortValue: (record) => record.tipo || "" },
+        { label: "Agendamento", render: (record) => formatDate(record.dataAgendamento), sortValue: (record) => record.dataAgendamento || "" },
+        { label: "Valor total", render: (record) => formatCurrency(record.valorTotal), sortValue: (record) => Number(record.valorTotal ?? 0) },
+        {
+          label: "Status",
+          type: "status",
+          sortValue: (record) => formatServiceStatus(record.status),
+          render: (record) => ({
+            text: formatServiceStatus(record.status),
+            tone: getServiceStatusTone(record.status),
+          }),
+        },
+      ],
+      matchesFilters(record, filters) {
+        const cliente = getReferenceLabel(record.cliente, ["nome"]);
+        const status = formatServiceStatus(record.status);
+
+        return (
+          normalizeText(cliente).includes(normalizeText(filters.cliente)) &&
+          normalizeText(record.tipo).includes(normalizeText(filters.tipo)) &&
+          (filters.status === "Todos" || status === filters.status)
+        );
+      },
+      detailCard: {
+        title: "Detalhes do servico",
+        tabs: ["Cliente", "Agenda", "Valores"],
+        facts(record) {
+          if (!record) {
+            return [];
+          }
+
+          return [
+            { label: "Cliente", value: getReferenceLabel(record.cliente, ["nome"]) },
+            { label: "Tipo", value: record.tipo || "Nao informado" },
+            { label: "Agendamento", value: formatDate(record.dataAgendamento) },
+            { label: "Equipe", value: Array.isArray(record.equipe) ? record.equipe.map((item) => getReferenceLabel(item, ["nome"])).join(", ") || "Nao informado" : "Nao informado" },
+            { label: "Status", value: formatServiceStatus(record.status) },
+          ];
+        },
+      },
+    },
+    create: {
+      heroTitle: "Cadastrar servico",
+      sideNotes: [
+        "Informe o ID do cliente cadastrado.",
+        "Equipe deve usar IDs separados por virgula.",
+        "Produtos utilizados aceitam uma lista JSON no contrato do backend.",
+      ],
+      fields: [
+        { name: "cliente", label: "ID do cliente", placeholder: "ObjectId do cliente", validate: (value) => validateRequired(value, "ID do cliente"), formatInput: toId },
+        { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
+        { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
+        { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
+        { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
+        { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
+        { name: "equipe", label: "IDs da equipe", placeholder: "id1, id2, id3", fullWidth: true, formatInput: (value) => Array.isArray(value) ? value.map(toId).join(", ") : value },
+        { name: "produtosUtilizados", label: "Produtos utilizados", type: "textarea", placeholder: "[{\"produto\":\"id\",\"quantidade\":1,\"valorUnitario\":0}]", fullWidth: true, validate: (value) => validateJsonArray(value, "Produtos utilizados"), formatInput: formatJsonArray },
+        { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
+        { name: "valorProdutos", label: "Valor dos produtos", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor dos produtos") },
+        { name: "valorTotal", label: "Valor total", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor total") },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Agendado", "Em andamento", "Concluido", "Cancelado"],
+          defaultValue: "Agendado",
+          formatInput: formatServiceStatus,
+        },
+        { name: "responsavel", label: "Responsavel", placeholder: "Responsavel pelo cadastro" },
+        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+      ],
+      submitLabel: "Salvar servico",
+      successMessage: "Servico cadastrado com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/servicos/listar",
+      toPayload(values) {
+        return buildServicePayload(values);
+      },
+    },
+    edit: {
+      heroTitle: "Editar servico",
+      alert: "Selecione um servico na consulta para abrir a edicao com o registro correto.",
+      fields: [
+        { name: "cliente", label: "ID do cliente", placeholder: "ObjectId do cliente", validate: (value) => validateRequired(value, "ID do cliente"), formatInput: toId },
+        { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
+        { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
+        { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
+        { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
+        { name: "dataConclusao", label: "Data de conclusao", type: "date", validate: validateProductDate },
+        { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
+        { name: "equipe", label: "IDs da equipe", placeholder: "id1, id2, id3", fullWidth: true, formatInput: (value) => Array.isArray(value) ? value.map(toId).join(", ") : value },
+        { name: "produtosUtilizados", label: "Produtos utilizados", type: "textarea", placeholder: "[{\"produto\":\"id\",\"quantidade\":1,\"valorUnitario\":0}]", fullWidth: true, validate: (value) => validateJsonArray(value, "Produtos utilizados"), formatInput: formatJsonArray },
+        { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
+        { name: "valorProdutos", label: "Valor dos produtos", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor dos produtos") },
+        { name: "valorTotal", label: "Valor total", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor total") },
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: ["Agendado", "Em andamento", "Concluido", "Cancelado", "Inativo"],
+          defaultValue: "Agendado",
+          formatInput: formatServiceStatus,
+        },
+        { name: "responsavel", label: "Responsavel", placeholder: "Responsavel pela edicao" },
+        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+      ],
+      submitLabel: "Salvar alteracoes",
+      successMessage: "Servico atualizado com sucesso.",
+      secondaryLabel: "Voltar para consulta",
+      secondaryPath: "/servicos/listar",
+      toPayload(values) {
+        return buildServicePayload(values);
+      },
+    },
+    deactivate: {
+      heroTitle: "Cancelar servico",
+      warning:
+        "O cancelamento chama o endpoint de inativacao do servico e devolve produtos utilizados ao estoque.",
+      optionalFields: [
+        { name: "responsavelCancelamento", label: "Responsavel", placeholder: "Responsavel pelo cancelamento" },
+        { name: "motivoCancelamento", label: "Motivo", placeholder: "Motivo do cancelamento" },
+        { name: "observacao", label: "Observacao", placeholder: "Observacao interna" },
+      ],
+      actionButtons: [{ label: "Confirmar cancelamento", variant: "danger", action: "confirm" }],
+      successMessage: "Servico cancelado com sucesso.",
+      requestPathSuffix: "/inativar",
+      asyncAction: "update",
+      facts(record) {
+        if (!record) {
+          return [];
+        }
+
+        return [
+          { label: "Cliente", value: getReferenceLabel(record.cliente, ["nome"]) },
+          { label: "Tipo", value: record.tipo || "Nao informado" },
+          { label: "Status atual", value: formatServiceStatus(record.status) },
+          { label: "Agendamento", value: formatDate(record.dataAgendamento) },
+        ];
+      },
+      buildPayload(record, values = {}) {
+        return {
+          responsavelCancelamento: values.responsavelCancelamento?.trim() || "Sistema",
+          motivoCancelamento: values.motivoCancelamento?.trim() || "Cancelamento pelo sistema",
+          observacao: values.observacao?.trim() || "",
+        };
+      },
+    },
+  },
 };
 
 export const orderedModules = Object.values(moduleConfigs);
@@ -663,7 +1679,8 @@ export function getInitialFormValues(fields, record = {}) {
       }
 
       if (record[field.name] !== undefined && record[field.name] !== null) {
-        const value = String(record[field.name]);
+        const rawValue = record[field.name];
+        const value = typeof rawValue === "object" ? rawValue : String(rawValue);
 
         return [field.name, field.formatInput ? field.formatInput(value) : value];
       }

@@ -5,11 +5,13 @@ export const primaryNavigation = [
     label: "Inicio",
     path: "/",
     description: "Visao geral do sistema e acesso aos modulos principais.",
+    icon: "home",
   },
   ...orderedModules.map((module) => ({
     label: module.label,
     path: module.basePath,
     description: module.summary,
+    icon: module.key,
   })),
 ];
 
