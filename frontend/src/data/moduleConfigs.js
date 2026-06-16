@@ -522,6 +522,102 @@ function validateServiceForm(values, relatedRecords) {
   return "";
 }
 
+function stockProductField(optionDisabled) {
+  return {
+    name: "produto",
+    label: "Produto",
+    type: "reference",
+    resource: "produtos",
+    placeholder: "Selecione um produto",
+    optionLabel: (record) => record.codigo ? `${record.nome} (${record.codigo})` : record.nome,
+    optionMeta: (record) => `estoque ${record.quantidadeAtual ?? 0}`,
+    optionDisabled,
+    validate: (value) => validateRequired(value, "Produto"),
+    formatInput: toId,
+  };
+}
+
+function supplierReferenceField() {
+  return {
+    name: "fornecedor",
+    label: "Fornecedor",
+    type: "reference",
+    resource: "fornecedores",
+    placeholder: "Selecione um fornecedor",
+    optionLabel: (record) => record.nomeFantasia || record.razaoSocial,
+    optionMeta: (record) => record.cnpj ? formatCpfCnpj(record.cnpj) : "",
+    formatInput: toId,
+  };
+}
+
+function serviceClientField() {
+  return {
+    name: "cliente",
+    label: "Cliente",
+    type: "reference",
+    resource: "clientes",
+    placeholder: "Selecione um cliente",
+    optionLabel: (record) => record.nome,
+    optionMeta: (record) => record.cpf_cnpj ? formatCpfCnpj(record.cpf_cnpj) : record.telefone,
+    validate: (value) => validateRequired(value, "Cliente"),
+    formatInput: toId,
+  };
+}
+
+function serviceTeamField() {
+  return {
+    name: "equipe",
+    label: "Equipe",
+    type: "multiReference",
+    resource: "funcionarios",
+    fullWidth: true,
+    optionLabel: (record) => record.nome,
+    optionMeta: (record) => [record.cargo, record.setor].filter(Boolean).join(" - "),
+    formatInput: formatReferenceList,
+  };
+}
+
+function serviceProductsField() {
+  return {
+    name: "produtosUtilizados",
+    label: "Produtos utilizados",
+    type: "productItems",
+    productResource: "produtos",
+    fullWidth: true,
+    optionLabel: (record) => `${record.nome} - estoque ${record.quantidadeAtual ?? 0}`,
+    optionDisabled: (record) => getAvailableStock(record) <= 0,
+    validate: validateProductItems,
+    formatInput: formatProductItems,
+  };
+}
+
+function serviceFields({ includeCompletionDate = false, statusOptions, responsavelPlaceholder }) {
+  return [
+    serviceClientField(),
+    { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
+    { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
+    { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
+    { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
+    ...(includeCompletionDate
+      ? [{ name: "dataConclusao", label: "Data de conclusao", type: "date", validate: validateProductDate }]
+      : []),
+    { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
+    serviceTeamField(),
+    serviceProductsField(),
+    { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: statusOptions,
+      defaultValue: "Agendado",
+      formatInput: formatServiceStatus,
+    },
+    { name: "responsavel", label: "Responsavel", placeholder: responsavelPlaceholder },
+    { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+  ];
+}
+
 export const moduleConfigs = {
   clientes: {
     key: "clientes",
@@ -1464,29 +1560,10 @@ export const moduleConfigs = {
         "Fornecedor aparece pelo nome fantasia quando for uma entrada de estoque.",
       ],
       fields: [
-        {
-          name: "produto",
-          label: "Produto",
-          type: "reference",
-          resource: "produtos",
-          placeholder: "Selecione um produto",
-          optionLabel: (record) => record.codigo ? `${record.nome} (${record.codigo})` : record.nome,
-          optionMeta: (record) => `estoque ${record.quantidadeAtual ?? 0}`,
-          optionDisabled: (record, values) =>
-            normalizeMovementType(values.tipo) === "saida" && getAvailableStock(record) <= 0,
-          validate: (value) => validateRequired(value, "Produto"),
-          formatInput: toId,
-        },
-        {
-          name: "fornecedor",
-          label: "Fornecedor",
-          type: "reference",
-          resource: "fornecedores",
-          placeholder: "Selecione um fornecedor",
-          optionLabel: (record) => record.nomeFantasia || record.razaoSocial,
-          optionMeta: (record) => record.cnpj ? formatCpfCnpj(record.cnpj) : "",
-          formatInput: toId,
-        },
+        stockProductField((record, values) =>
+          normalizeMovementType(values.tipo) === "saida" && getAvailableStock(record) <= 0
+        ),
+        supplierReferenceField(),
         {
           name: "tipo",
           label: "Tipo",
@@ -1516,30 +1593,11 @@ export const moduleConfigs = {
       heroTitle: "Editar movimentacao",
       alert: "Selecione uma movimentacao na consulta para abrir a edicao com o registro correto.",
       fields: [
-        {
-          name: "produto",
-          label: "Produto",
-          type: "reference",
-          resource: "produtos",
-          placeholder: "Selecione um produto",
-          optionLabel: (record) => record.codigo ? `${record.nome} (${record.codigo})` : record.nome,
-          optionMeta: (record) => `estoque ${record.quantidadeAtual ?? 0}`,
-          optionDisabled: (record, values) =>
-            ["saida", "transferencia"].includes(normalizeMovementType(values.tipo)) &&
-            getAvailableStock(record) <= 0,
-          validate: (value) => validateRequired(value, "Produto"),
-          formatInput: toId,
-        },
-        {
-          name: "fornecedor",
-          label: "Fornecedor",
-          type: "reference",
-          resource: "fornecedores",
-          placeholder: "Selecione um fornecedor",
-          optionLabel: (record) => record.nomeFantasia || record.razaoSocial,
-          optionMeta: (record) => record.cnpj ? formatCpfCnpj(record.cnpj) : "",
-          formatInput: toId,
-        },
+        stockProductField((record, values) =>
+          ["saida", "transferencia"].includes(normalizeMovementType(values.tipo)) &&
+          getAvailableStock(record) <= 0
+        ),
+        supplierReferenceField(),
         {
           name: "tipo",
           label: "Tipo",
@@ -1681,56 +1739,10 @@ export const moduleConfigs = {
         "Selecione cliente, equipe e produtos pelos nomes cadastrados.",
         "O valor dos produtos e o total sao calculados a partir dos itens usados.",
       ],
-      fields: [
-        {
-          name: "cliente",
-          label: "Cliente",
-          type: "reference",
-          resource: "clientes",
-          placeholder: "Selecione um cliente",
-          optionLabel: (record) => record.nome,
-          optionMeta: (record) => record.cpf_cnpj ? formatCpfCnpj(record.cpf_cnpj) : record.telefone,
-          validate: (value) => validateRequired(value, "Cliente"),
-          formatInput: toId,
-        },
-        { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
-        { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
-        { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
-        { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
-        { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
-        {
-          name: "equipe",
-          label: "Equipe",
-          type: "multiReference",
-          resource: "funcionarios",
-          fullWidth: true,
-          optionLabel: (record) => record.nome,
-          optionMeta: (record) => [record.cargo, record.setor].filter(Boolean).join(" - "),
-          formatInput: formatReferenceList,
-        },
-        {
-          name: "produtosUtilizados",
-          label: "Produtos utilizados",
-          type: "productItems",
-          productResource: "produtos",
-          fullWidth: true,
-          optionLabel: (record) => `${record.nome} - estoque ${record.quantidadeAtual ?? 0}`,
-          optionDisabled: (record) => getAvailableStock(record) <= 0,
-          validate: validateProductItems,
-          formatInput: formatProductItems,
-        },
-        { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
-        {
-          name: "status",
-          label: "Status",
-          type: "select",
-          options: ["Agendado", "Em andamento", "Concluido", "Cancelado"],
-          defaultValue: "Agendado",
-          formatInput: formatServiceStatus,
-        },
-        { name: "responsavel", label: "Responsavel", placeholder: "Responsavel pelo cadastro" },
-        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
-      ],
+      fields: serviceFields({
+        statusOptions: ["Agendado", "Em andamento", "Concluido", "Cancelado"],
+        responsavelPlaceholder: "Responsavel pelo cadastro",
+      }),
       submitLabel: "Salvar servico",
       successMessage: "Servico cadastrado com sucesso.",
       secondaryLabel: "Voltar para consulta",
@@ -1743,57 +1755,11 @@ export const moduleConfigs = {
     edit: {
       heroTitle: "Editar servico",
       alert: "Selecione um servico na consulta para abrir a edicao com o registro correto.",
-      fields: [
-        {
-          name: "cliente",
-          label: "Cliente",
-          type: "reference",
-          resource: "clientes",
-          placeholder: "Selecione um cliente",
-          optionLabel: (record) => record.nome,
-          optionMeta: (record) => record.cpf_cnpj ? formatCpfCnpj(record.cpf_cnpj) : record.telefone,
-          validate: (value) => validateRequired(value, "Cliente"),
-          formatInput: toId,
-        },
-        { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
-        { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
-        { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
-        { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
-        { name: "dataConclusao", label: "Data de conclusao", type: "date", validate: validateProductDate },
-        { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
-        {
-          name: "equipe",
-          label: "Equipe",
-          type: "multiReference",
-          resource: "funcionarios",
-          fullWidth: true,
-          optionLabel: (record) => record.nome,
-          optionMeta: (record) => [record.cargo, record.setor].filter(Boolean).join(" - "),
-          formatInput: formatReferenceList,
-        },
-        {
-          name: "produtosUtilizados",
-          label: "Produtos utilizados",
-          type: "productItems",
-          productResource: "produtos",
-          fullWidth: true,
-          optionLabel: (record) => `${record.nome} - estoque ${record.quantidadeAtual ?? 0}`,
-          optionDisabled: (record) => getAvailableStock(record) <= 0,
-          validate: validateProductItems,
-          formatInput: formatProductItems,
-        },
-        { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
-        {
-          name: "status",
-          label: "Status",
-          type: "select",
-          options: ["Agendado", "Em andamento", "Concluido", "Cancelado", "Inativo"],
-          defaultValue: "Agendado",
-          formatInput: formatServiceStatus,
-        },
-        { name: "responsavel", label: "Responsavel", placeholder: "Responsavel pela edicao" },
-        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
-      ],
+      fields: serviceFields({
+        includeCompletionDate: true,
+        statusOptions: ["Agendado", "Em andamento", "Concluido", "Cancelado", "Inativo"],
+        responsavelPlaceholder: "Responsavel pela edicao",
+      }),
       submitLabel: "Salvar alteracoes",
       successMessage: "Servico atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
