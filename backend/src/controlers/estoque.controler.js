@@ -62,6 +62,18 @@ function validarQuantidadeNova(quantidadeNova) {
   }
 }
 
+function validarSaldoDisponivel(produto, quantidade) {
+  const saldoAtual = Number(produto.quantidadeAtual ?? 0);
+
+  if (saldoAtual <= 0) {
+    throw criarErro("Produto sem estoque nao pode ter saida. Registre uma entrada antes.");
+  }
+
+  if (quantidade > saldoAtual) {
+    throw criarErro(`Quantidade solicitada maior que o estoque atual (${saldoAtual}).`);
+  }
+}
+
 async function buscarProduto(produtoId) {
   const produto = await Produto.findById(produtoId);
 
@@ -148,6 +160,8 @@ async function aplicarEntradaSaida(dados) {
     const localDestino = normalizarLocal(dados.localDestino, getLocalPadraoProduto(produto));
     alterarSaldoLocal(produto, localDestino, dados.quantidade);
   } else {
+    validarSaldoDisponivel(produto, dados.quantidade);
+
     const localOrigem = normalizarLocal(dados.localOrigem, getLocalPadraoProduto(produto));
     alterarSaldoLocal(produto, localOrigem, -dados.quantidade);
   }
@@ -185,6 +199,7 @@ async function aplicarTransferencia(dados) {
     throw criarErro("Local de origem e destino devem ser diferentes.");
   }
 
+  validarSaldoDisponivel(produto, dados.quantidade);
   alterarSaldoLocal(produto, localOrigem, -dados.quantidade);
   alterarSaldoLocal(produto, localDestino, dados.quantidade);
   sincronizarQuantidadeAtual(produto);

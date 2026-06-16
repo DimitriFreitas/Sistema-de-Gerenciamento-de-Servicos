@@ -42,7 +42,7 @@ function getOptionMeta(field, record) {
   return field.optionMeta?.(record) || "";
 }
 
-function renderReferenceField(field, value, relatedRecords, onChange, onBlur, hasError) {
+function renderReferenceField(field, value, relatedRecords, onChange, onBlur, hasError, formValues) {
   const records = relatedRecords[field.resource] ?? [];
 
   return (
@@ -56,9 +56,11 @@ function renderReferenceField(field, value, relatedRecords, onChange, onBlur, ha
       <option value="">{field.placeholder || "Selecione uma opcao"}</option>
       {records.map((record) => {
         const meta = getOptionMeta(field, record);
+        const isSelected = getReferenceId(value) === record._id;
+        const isDisabled = Boolean(field.optionDisabled?.(record, formValues) && !isSelected);
 
         return (
-          <option key={record._id} value={record._id}>
+          <option disabled={isDisabled} key={record._id} value={record._id}>
             {meta ? `${getOptionLabel(field, record)} - ${meta}` : getOptionLabel(field, record)}
           </option>
         );
@@ -171,7 +173,11 @@ function renderProductItemsField(field, value, relatedRecords, onChange) {
             >
               <option value="">Selecione</option>
               {records.map((record) => (
-                <option key={record._id} value={record._id}>
+                <option
+                  disabled={Boolean(field.optionDisabled?.(record, row) && getReferenceId(row.produto) !== record._id)}
+                  key={record._id}
+                  value={record._id}
+                >
                   {field.optionLabel?.(record) || record.nome}
                 </option>
               ))}
@@ -215,7 +221,7 @@ function renderProductItemsField(field, value, relatedRecords, onChange) {
   );
 }
 
-function renderField(field, value, onChange, onBlur, hasError, relatedRecords) {
+function renderField(field, value, onChange, onBlur, hasError, relatedRecords, formValues) {
   const inputProps = {
     "aria-invalid": hasError ? "true" : "false",
     name: field.name,
@@ -225,7 +231,7 @@ function renderField(field, value, onChange, onBlur, hasError, relatedRecords) {
   };
 
   if (field.type === "reference") {
-    return renderReferenceField(field, value, relatedRecords, onChange, onBlur, hasError);
+    return renderReferenceField(field, value, relatedRecords, onChange, onBlur, hasError, formValues);
   }
 
   if (field.type === "multiReference") {
@@ -300,6 +306,7 @@ function CrudFormPage({ moduleConfig, mode }) {
   const [touchedFields, setTouchedFields] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const fieldErrors = validateFields(config.fields, formValues);
+  const formError = config.validateForm?.(formValues, relatedState.records) || "";
 
   useEffect(() => {
     const resources = getReferenceRecords(config.fields);
@@ -410,6 +417,11 @@ function CrudFormPage({ moduleConfig, mode }) {
       return;
     }
 
+    if (formError) {
+      setSubmitState({ status: "error", error: formError });
+      return;
+    }
+
     try {
       setSubmitState({ status: "saving", error: "" });
       const payload = config.toPayload(formValues);
@@ -478,7 +490,8 @@ function CrudFormPage({ moduleConfig, mode }) {
                     handleChange,
                     handleBlur,
                     shouldShowError,
-                    relatedState.records
+                    relatedState.records,
+                    formValues
                   )}
                   {shouldShowError ? (
                     <small className="field-error">{fieldErrors[field.name]}</small>

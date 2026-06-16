@@ -115,6 +115,14 @@ function getReferenceLabel(reference, fields) {
   return reference;
 }
 
+function getAvailableStock(product) {
+  return Number(product?.quantidadeAtual ?? 0);
+}
+
+function findRecordById(records = [], id) {
+  return records.find((record) => record._id === toId(id));
+}
+
 function toId(value) {
   if (value && typeof value === "object") {
     return value._id || value.id || "";
@@ -454,6 +462,60 @@ function validateProductItems(value) {
 
     if (row.valorUnitario !== "" && row.valorUnitario !== undefined && Number(row.valorUnitario) < 0) {
       return "Valor unitario nao pode ser negativo.";
+    }
+  }
+
+  return "";
+}
+
+function validateStockMovementForm(values, relatedRecords) {
+  const tipo = normalizeMovementType(values.tipo);
+
+  if (tipo !== "saida" && tipo !== "transferencia") {
+    return "";
+  }
+
+  const produto = findRecordById(relatedRecords.produtos, values.produto);
+
+  if (!produto) {
+    return "";
+  }
+
+  const availableStock = getAvailableStock(produto);
+  const requestedAmount = Number(values.quantidade ?? 0);
+
+  if (availableStock <= 0) {
+    return "Produto sem estoque nao pode ter saida. Registre uma entrada antes.";
+  }
+
+  if (requestedAmount > availableStock) {
+    return `Quantidade solicitada maior que o estoque atual (${availableStock}).`;
+  }
+
+  return "";
+}
+
+function validateServiceForm(values, relatedRecords) {
+  const produtosUtilizados = Array.isArray(values.produtosUtilizados)
+    ? values.produtosUtilizados
+    : [];
+
+  for (const item of produtosUtilizados) {
+    const produto = findRecordById(relatedRecords.produtos, item.produto);
+
+    if (!produto) {
+      continue;
+    }
+
+    const availableStock = getAvailableStock(produto);
+    const requestedAmount = Number(item.quantidade ?? 0);
+
+    if (availableStock <= 0) {
+      return `${produto.nome} esta sem estoque. Registre uma entrada antes de usar no servico.`;
+    }
+
+    if (requestedAmount > availableStock) {
+      return `${produto.nome} tem apenas ${availableStock} unidade(s) em estoque.`;
     }
   }
 
@@ -1410,6 +1472,8 @@ export const moduleConfigs = {
           placeholder: "Selecione um produto",
           optionLabel: (record) => record.codigo ? `${record.nome} (${record.codigo})` : record.nome,
           optionMeta: (record) => `estoque ${record.quantidadeAtual ?? 0}`,
+          optionDisabled: (record, values) =>
+            normalizeMovementType(values.tipo) === "saida" && getAvailableStock(record) <= 0,
           validate: (value) => validateRequired(value, "Produto"),
           formatInput: toId,
         },
@@ -1443,6 +1507,7 @@ export const moduleConfigs = {
       successMessage: "Movimentacao cadastrada com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/estoque/listar",
+      validateForm: validateStockMovementForm,
       toPayload(values) {
         return buildStockPayload(values);
       },
@@ -1459,6 +1524,9 @@ export const moduleConfigs = {
           placeholder: "Selecione um produto",
           optionLabel: (record) => record.codigo ? `${record.nome} (${record.codigo})` : record.nome,
           optionMeta: (record) => `estoque ${record.quantidadeAtual ?? 0}`,
+          optionDisabled: (record, values) =>
+            ["saida", "transferencia"].includes(normalizeMovementType(values.tipo)) &&
+            getAvailableStock(record) <= 0,
           validate: (value) => validateRequired(value, "Produto"),
           formatInput: toId,
         },
@@ -1493,6 +1561,7 @@ export const moduleConfigs = {
       successMessage: "Movimentacao atualizada com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/estoque/listar",
+      validateForm: validateStockMovementForm,
       toPayload(values) {
         return buildStockPayload(values);
       },
@@ -1646,6 +1715,7 @@ export const moduleConfigs = {
           productResource: "produtos",
           fullWidth: true,
           optionLabel: (record) => `${record.nome} - estoque ${record.quantidadeAtual ?? 0}`,
+          optionDisabled: (record) => getAvailableStock(record) <= 0,
           validate: validateProductItems,
           formatInput: formatProductItems,
         },
@@ -1665,6 +1735,7 @@ export const moduleConfigs = {
       successMessage: "Servico cadastrado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/servicos/listar",
+      validateForm: validateServiceForm,
       toPayload(values) {
         return buildServicePayload(values);
       },
@@ -1707,6 +1778,7 @@ export const moduleConfigs = {
           productResource: "produtos",
           fullWidth: true,
           optionLabel: (record) => `${record.nome} - estoque ${record.quantidadeAtual ?? 0}`,
+          optionDisabled: (record) => getAvailableStock(record) <= 0,
           validate: validateProductItems,
           formatInput: formatProductItems,
         },
@@ -1726,6 +1798,7 @@ export const moduleConfigs = {
       successMessage: "Servico atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/servicos/listar",
+      validateForm: validateServiceForm,
       toPayload(values) {
         return buildServicePayload(values);
       },
