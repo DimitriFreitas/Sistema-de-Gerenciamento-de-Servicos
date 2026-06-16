@@ -150,31 +150,28 @@ function parseList(value) {
     .filter(Boolean);
 }
 
-function parseJsonArray(value) {
-  const trimmedValue = String(value ?? "").trim();
-
-  if (!trimmedValue) {
-    return [];
-  }
-
-  try {
-    const parsedValue = JSON.parse(trimmedValue);
-
-    return Array.isArray(parsedValue) ? parsedValue : [];
-  } catch {
-    return [];
-  }
-}
-
 function normalizeProductsUsed(products) {
-  return products.map((item) => ({
-    ...item,
-    produto: toId(item.produto),
-  }));
+  return (Array.isArray(products) ? products : []).map((item) =>
+    compactPayload({
+      produto: toId(item.produto),
+      quantidade: toOptionalNumber(item.quantidade),
+      localOrigem: String(item.localOrigem ?? "").trim(),
+      valorUnitario: toOptionalNumber(item.valorUnitario),
+    })
+  );
 }
 
-function formatJsonArray(value) {
-  return Array.isArray(value) && value.length ? JSON.stringify(value, null, 2) : "";
+function formatReferenceList(value) {
+  return Array.isArray(value) ? value.map(toId) : [];
+}
+
+function formatProductItems(value) {
+  return (Array.isArray(value) ? value : []).map((item) => ({
+    produto: toId(item.produto),
+    quantidade: item.quantidade ?? 1,
+    localOrigem: item.localOrigem ?? "",
+    valorUnitario: item.valorUnitario ?? "",
+  }));
 }
 
 function normalizeStatusPayload(status) {
@@ -323,6 +320,13 @@ function buildStockPayload(values) {
 }
 
 function buildServicePayload(values) {
+  const produtosUtilizados = normalizeProductsUsed(values.produtosUtilizados);
+  const valorProdutos = produtosUtilizados.reduce(
+    (total, item) => total + Number(item.quantidade ?? 0) * Number(item.valorUnitario ?? 0),
+    0
+  );
+  const valorMaoDeObra = toOptionalNumber(values.valorMaoDeObra);
+
   return compactPayload({
     cliente: toId(values.cliente),
     tipo: values.tipo.trim(),
@@ -331,11 +335,11 @@ function buildServicePayload(values) {
     dataInicio: values.dataInicio || undefined,
     dataConclusao: values.dataConclusao || undefined,
     garantiaAte: values.garantiaAte || undefined,
-    equipe: parseList(values.equipe),
-    produtosUtilizados: normalizeProductsUsed(parseJsonArray(values.produtosUtilizados)),
-    valorMaoDeObra: toOptionalNumber(values.valorMaoDeObra),
-    valorProdutos: toOptionalNumber(values.valorProdutos),
-    valorTotal: toOptionalNumber(values.valorTotal),
+    equipe: Array.isArray(values.equipe) ? values.equipe.map(toId).filter(Boolean) : parseList(values.equipe),
+    produtosUtilizados,
+    valorMaoDeObra,
+    valorProdutos,
+    valorTotal: Number(valorMaoDeObra ?? 0) + valorProdutos,
     status: normalizeServiceStatus(values.status),
     responsavel: values.responsavel.trim(),
     observacao: values.observacao.trim(),
@@ -436,20 +440,24 @@ function validateProductDate(value) {
   return Number.isNaN(parsedDate.getTime()) ? "Informe uma data valida." : "";
 }
 
-function validateJsonArray(value, label) {
-  const trimmedValue = String(value ?? "").trim();
+function validateProductItems(value) {
+  const rows = Array.isArray(value) ? value : [];
 
-  if (!trimmedValue) {
-    return "";
+  for (const row of rows) {
+    if (!toId(row.produto)) {
+      return "Selecione o produto ou remova a linha vazia.";
+    }
+
+    if (!Number(row.quantidade) || Number(row.quantidade) < 1) {
+      return "Informe quantidade maior que zero para cada produto.";
+    }
+
+    if (row.valorUnitario !== "" && row.valorUnitario !== undefined && Number(row.valorUnitario) < 0) {
+      return "Valor unitario nao pode ser negativo.";
+    }
   }
 
-  try {
-    const parsedValue = JSON.parse(trimmedValue);
-
-    return Array.isArray(parsedValue) ? "" : `${label} deve ser uma lista JSON.`;
-  } catch {
-    return `${label} deve ser uma lista JSON valida.`;
-  }
+  return "";
 }
 
 export const moduleConfigs = {
@@ -1390,12 +1398,31 @@ export const moduleConfigs = {
     create: {
       heroTitle: "Registrar movimentacao",
       sideNotes: [
-        "Informe o ID do produto cadastrado.",
-        "A rota principal aceita entrada e saida. Ajuste e transferencia podem ser mantidos pela API.",
+        "Selecione o produto pelo nome ou codigo cadastrado.",
+        "Fornecedor aparece pelo nome fantasia quando for uma entrada de estoque.",
       ],
       fields: [
-        { name: "produto", label: "ID do produto", placeholder: "ObjectId do produto", validate: (value) => validateRequired(value, "ID do produto"), formatInput: toId },
-        { name: "fornecedor", label: "ID do fornecedor", placeholder: "ObjectId do fornecedor", formatInput: toId },
+        {
+          name: "produto",
+          label: "Produto",
+          type: "reference",
+          resource: "produtos",
+          placeholder: "Selecione um produto",
+          optionLabel: (record) => record.codigo ? `${record.nome} (${record.codigo})` : record.nome,
+          optionMeta: (record) => `estoque ${record.quantidadeAtual ?? 0}`,
+          validate: (value) => validateRequired(value, "Produto"),
+          formatInput: toId,
+        },
+        {
+          name: "fornecedor",
+          label: "Fornecedor",
+          type: "reference",
+          resource: "fornecedores",
+          placeholder: "Selecione um fornecedor",
+          optionLabel: (record) => record.nomeFantasia || record.razaoSocial,
+          optionMeta: (record) => record.cnpj ? formatCpfCnpj(record.cnpj) : "",
+          formatInput: toId,
+        },
         {
           name: "tipo",
           label: "Tipo",
@@ -1424,8 +1451,27 @@ export const moduleConfigs = {
       heroTitle: "Editar movimentacao",
       alert: "Selecione uma movimentacao na consulta para abrir a edicao com o registro correto.",
       fields: [
-        { name: "produto", label: "ID do produto", placeholder: "ObjectId do produto", validate: (value) => validateRequired(value, "ID do produto"), formatInput: toId },
-        { name: "fornecedor", label: "ID do fornecedor", placeholder: "ObjectId do fornecedor", formatInput: toId },
+        {
+          name: "produto",
+          label: "Produto",
+          type: "reference",
+          resource: "produtos",
+          placeholder: "Selecione um produto",
+          optionLabel: (record) => record.codigo ? `${record.nome} (${record.codigo})` : record.nome,
+          optionMeta: (record) => `estoque ${record.quantidadeAtual ?? 0}`,
+          validate: (value) => validateRequired(value, "Produto"),
+          formatInput: toId,
+        },
+        {
+          name: "fornecedor",
+          label: "Fornecedor",
+          type: "reference",
+          resource: "fornecedores",
+          placeholder: "Selecione um fornecedor",
+          optionLabel: (record) => record.nomeFantasia || record.razaoSocial,
+          optionMeta: (record) => record.cnpj ? formatCpfCnpj(record.cnpj) : "",
+          formatInput: toId,
+        },
         {
           name: "tipo",
           label: "Tipo",
@@ -1563,22 +1609,47 @@ export const moduleConfigs = {
     create: {
       heroTitle: "Cadastrar servico",
       sideNotes: [
-        "Informe o ID do cliente cadastrado.",
-        "Equipe deve usar IDs separados por virgula.",
-        "Produtos utilizados aceitam uma lista JSON no contrato do backend.",
+        "Selecione cliente, equipe e produtos pelos nomes cadastrados.",
+        "O valor dos produtos e o total sao calculados a partir dos itens usados.",
       ],
       fields: [
-        { name: "cliente", label: "ID do cliente", placeholder: "ObjectId do cliente", validate: (value) => validateRequired(value, "ID do cliente"), formatInput: toId },
+        {
+          name: "cliente",
+          label: "Cliente",
+          type: "reference",
+          resource: "clientes",
+          placeholder: "Selecione um cliente",
+          optionLabel: (record) => record.nome,
+          optionMeta: (record) => record.cpf_cnpj ? formatCpfCnpj(record.cpf_cnpj) : record.telefone,
+          validate: (value) => validateRequired(value, "Cliente"),
+          formatInput: toId,
+        },
         { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
         { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
         { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
         { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
         { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
-        { name: "equipe", label: "IDs da equipe", placeholder: "id1, id2, id3", fullWidth: true, formatInput: (value) => Array.isArray(value) ? value.map(toId).join(", ") : value },
-        { name: "produtosUtilizados", label: "Produtos utilizados", type: "textarea", placeholder: "[{\"produto\":\"id\",\"quantidade\":1,\"valorUnitario\":0}]", fullWidth: true, validate: (value) => validateJsonArray(value, "Produtos utilizados"), formatInput: formatJsonArray },
+        {
+          name: "equipe",
+          label: "Equipe",
+          type: "multiReference",
+          resource: "funcionarios",
+          fullWidth: true,
+          optionLabel: (record) => record.nome,
+          optionMeta: (record) => [record.cargo, record.setor].filter(Boolean).join(" - "),
+          formatInput: formatReferenceList,
+        },
+        {
+          name: "produtosUtilizados",
+          label: "Produtos utilizados",
+          type: "productItems",
+          productResource: "produtos",
+          fullWidth: true,
+          optionLabel: (record) => `${record.nome} - estoque ${record.quantidadeAtual ?? 0}`,
+          validate: validateProductItems,
+          formatInput: formatProductItems,
+        },
         { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
-        { name: "valorProdutos", label: "Valor dos produtos", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor dos produtos") },
-        { name: "valorTotal", label: "Valor total", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor total") },
         {
           name: "status",
           label: "Status",
@@ -1602,18 +1673,44 @@ export const moduleConfigs = {
       heroTitle: "Editar servico",
       alert: "Selecione um servico na consulta para abrir a edicao com o registro correto.",
       fields: [
-        { name: "cliente", label: "ID do cliente", placeholder: "ObjectId do cliente", validate: (value) => validateRequired(value, "ID do cliente"), formatInput: toId },
+        {
+          name: "cliente",
+          label: "Cliente",
+          type: "reference",
+          resource: "clientes",
+          placeholder: "Selecione um cliente",
+          optionLabel: (record) => record.nome,
+          optionMeta: (record) => record.cpf_cnpj ? formatCpfCnpj(record.cpf_cnpj) : record.telefone,
+          validate: (value) => validateRequired(value, "Cliente"),
+          formatInput: toId,
+        },
         { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
         { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
         { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
         { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
         { name: "dataConclusao", label: "Data de conclusao", type: "date", validate: validateProductDate },
         { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
-        { name: "equipe", label: "IDs da equipe", placeholder: "id1, id2, id3", fullWidth: true, formatInput: (value) => Array.isArray(value) ? value.map(toId).join(", ") : value },
-        { name: "produtosUtilizados", label: "Produtos utilizados", type: "textarea", placeholder: "[{\"produto\":\"id\",\"quantidade\":1,\"valorUnitario\":0}]", fullWidth: true, validate: (value) => validateJsonArray(value, "Produtos utilizados"), formatInput: formatJsonArray },
+        {
+          name: "equipe",
+          label: "Equipe",
+          type: "multiReference",
+          resource: "funcionarios",
+          fullWidth: true,
+          optionLabel: (record) => record.nome,
+          optionMeta: (record) => [record.cargo, record.setor].filter(Boolean).join(" - "),
+          formatInput: formatReferenceList,
+        },
+        {
+          name: "produtosUtilizados",
+          label: "Produtos utilizados",
+          type: "productItems",
+          productResource: "produtos",
+          fullWidth: true,
+          optionLabel: (record) => `${record.nome} - estoque ${record.quantidadeAtual ?? 0}`,
+          validate: validateProductItems,
+          formatInput: formatProductItems,
+        },
         { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
-        { name: "valorProdutos", label: "Valor dos produtos", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor dos produtos") },
-        { name: "valorTotal", label: "Valor total", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor total") },
         {
           name: "status",
           label: "Status",
