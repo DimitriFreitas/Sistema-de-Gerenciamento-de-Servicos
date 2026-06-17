@@ -261,7 +261,7 @@ function CrudListPage({ moduleConfig }) {
                       </button>
                     </th>
                   ))}
-                  <th>Acoes</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>

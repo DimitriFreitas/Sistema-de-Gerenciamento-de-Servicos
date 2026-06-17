@@ -24,8 +24,8 @@ function CrudModulePage({ moduleConfig }) {
         <article className="surface-card">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Operacoes</p>
-              <h3>CRUD do modulo</h3>
+              <p className="eyebrow">Operações</p>
+              <h3>CRUD do módulo</h3>
             </div>
             <span className="badge">{moduleConfig.contextLabel}</span>
           </div>

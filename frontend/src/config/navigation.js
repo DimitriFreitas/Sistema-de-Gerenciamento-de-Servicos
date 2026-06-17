@@ -2,9 +2,9 @@ import { orderedModules } from "../data/moduleConfigs";
 
 export const primaryNavigation = [
   {
-    label: "Inicio",
+    label: "Início",
     path: "/",
-    description: "Visao geral do sistema e acesso aos modulos principais.",
+    description: "Visão geral do sistema e acesso aos módulos principais.",
     icon: "home",
   },
   ...orderedModules.map((module) => ({
@@ -21,7 +21,7 @@ const routeMetadata = {
   "/": {
     eyebrow: "Tela inicial",
     label: "Bem-vindo",
-    description: "Sistema com modulos de clientes e produtos prontos para operacao.",
+    description: "Sistema com módulos de clientes e produtos prontos para operação.",
   },
   ...orderedModules.reduce((accumulator, module) => {
     accumulator[module.basePath] = module.routeMeta.base;
@@ -48,9 +48,9 @@ export function getRouteMeta(pathname) {
 
   return (
     routeMetadata[partialMatch] ?? {
-      eyebrow: "Navegacao",
-      label: "Sistema de Gestao",
-      description: "Fluxo principal de operacao do sistema.",
+      eyebrow: "Navegação",
+      label: "Sistema de Gestão",
+      description: "Fluxo principal de operação do sistema.",
     }
   );
 }

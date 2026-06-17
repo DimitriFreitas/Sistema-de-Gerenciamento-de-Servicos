@@ -3,12 +3,12 @@ import estoqueController from "../controlers/estoque.controler.js";
 
 const router = Router();
 
-// Criar movimentacao
+// Criar movimentação
 router.post("/", (req, res) =>
   estoqueController.criarMovimentacao(req, res)
 );
 
-// Listar todas as movimentacoes
+// Listar todas as movimentações
 router.get("/", (req, res) =>
   estoqueController.listarMovimentacoes(req, res)
 );
@@ -23,17 +23,17 @@ router.post("/transferencia", (req, res) =>
   estoqueController.transferirEstoque(req, res)
 );
 
-// Buscar movimentacao por ID
+// Buscar movimentação por ID
 router.get("/:id", (req, res) =>
   estoqueController.buscarMovimentacao(req, res)
 );
 
-// Atualizar movimentacao
+// Atualizar movimentação
 router.put("/:id", (req, res) =>
   estoqueController.atualizarMovimentacao(req, res)
 );
 
-// Deletar movimentacao
+// Deletar movimentação
 router.delete("/:id", (req, res) =>
   estoqueController.deletarMovimentacao(req, res)
 );

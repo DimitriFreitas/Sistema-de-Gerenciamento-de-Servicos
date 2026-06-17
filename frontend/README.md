@@ -1,6 +1,6 @@
 # Frontend
 
-Interface web do Sistema de Gerenciamento de Servicos. Esta pasta concentra a aplicacao React responsavel pelos modulos de clientes, produtos, fornecedores, funcionarios, estoque e servicos.
+Interface web do Sistema de Gerenciamento de Serviços. Esta pasta concentra a aplicação React responsável pelos módulos de clientes, produtos, fornecedores, funcionários, estoque e serviços.
 
 ## Stack
 
@@ -15,15 +15,15 @@ Interface web do Sistema de Gerenciamento de Servicos. Esta pasta concentra a ap
 O frontend oferece uma interface navegável para:
 
 - abrir o painel inicial do sistema;
-- acessar os modulos de clientes, produtos, fornecedores, funcionarios, estoque e servicos;
+- acessar os módulos de clientes, produtos, fornecedores, funcionários, estoque e serviços;
 - consultar registros vindos do backend;
 - filtrar e ordenar listagens;
 - visualizar detalhes do item selecionado;
 - cadastrar novos registros;
 - editar registros existentes;
-- inativar clientes, produtos, fornecedores e funcionarios;
-- registrar e remover movimentacoes de estoque;
-- cadastrar, editar e cancelar servicos.
+- inativar clientes, produtos, fornecedores e funcionários;
+- registrar e remover movimentações de estoque;
+- cadastrar, editar e cancelar serviços.
 
 ## Estrutura
 
@@ -32,8 +32,8 @@ frontend/
 ├── public/                 # Arquivos estáticos servidos pelo Vite
 ├── src/
 │   ├── components/         # Componentes reutilizáveis e telas CRUD genéricas
-│   ├── config/             # Metadados de navegacao
-│   ├── data/               # Configuracao dos modulos
+│   ├── config/             # Metadados de navegação
+│   ├── data/               # Configuração dos módulos
 │   ├── layouts/            # Estrutura principal da aplicação
 │   ├── lib/                # Cliente HTTP, formatadores e validações auxiliares
 │   ├── pages/              # Página inicial
@@ -57,7 +57,7 @@ frontend/
 
 ## Organização dos módulos
 
-O arquivo `src/data/moduleConfigs.js` centraliza o comportamento visual e funcional dos modulos:
+O arquivo `src/data/moduleConfigs.js` centraliza o comportamento visual e funcional dos módulos:
 
 - textos de navegação;
 - caminhos das rotas;

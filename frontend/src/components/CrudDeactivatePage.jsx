@@ -50,7 +50,7 @@ function CrudDeactivatePage({ moduleConfig }) {
         const selectedRecord = data.find((item) => item._id === recordId);
 
         if (!selectedRecord) {
-          throw new Error(`${moduleConfig.singularLabel} nao encontrado.`);
+          throw new Error(`${moduleConfig.singularLabel} não encontrado.`);
         }
 
         setRecord(selectedRecord);
@@ -128,7 +128,7 @@ function CrudDeactivatePage({ moduleConfig }) {
 
           <div className="inner-panel">
             <p className="eyebrow">Detalhes</p>
-            <h4>Detalhes antes da inativacao</h4>
+            <h4>Detalhes antes da inativação</h4>
             <div className="mini-list">
               {config.facts(record).map((fact) => (
                 <div className="mini-list-item" key={fact.label}>

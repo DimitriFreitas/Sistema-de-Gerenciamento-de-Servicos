@@ -5,11 +5,11 @@ const ProdutoServicoSchema = new mongoose.Schema(
     produto: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Produto",
-      required: [true, "Produto utilizado e obrigatorio."],
+      required: [true, "Produto utilizado é obrigatório."],
     },
     quantidade: {
       type: Number,
-      required: [true, "Quantidade utilizada e obrigatoria."],
+      required: [true, "Quantidade utilizada é obrigatória."],
       min: [1, "Quantidade utilizada deve ser maior que zero."],
     },
     localOrigem: {
@@ -18,7 +18,7 @@ const ProdutoServicoSchema = new mongoose.Schema(
     },
     valorUnitario: {
       type: Number,
-      min: [0, "Valor unitario nao pode ser negativo."],
+      min: [0, "Valor unitário não pode ser negativo."],
     },
   },
   { _id: false }
@@ -28,7 +28,7 @@ const HistoricoStatusSchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      required: [true, "Status do historico e obrigatorio."],
+      required: [true, "Status do histórico é obrigatório."],
       trim: true,
     },
     data: {
@@ -51,11 +51,11 @@ const ServicoSchema = new mongoose.Schema({
   cliente: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Cliente",
-    required: [true, "Cliente e obrigatorio."],
+    required: [true, "Cliente é obrigatório."],
   },
   tipo: {
     type: String,
-    required: [true, "Tipo de servico e obrigatorio."],
+    required: [true, "Tipo de serviço é obrigatório."],
     trim: true,
   },
   descricao: {
@@ -81,21 +81,21 @@ const ServicoSchema = new mongoose.Schema({
   produtosUtilizados: [ProdutoServicoSchema],
   valorMaoDeObra: {
     type: Number,
-    min: [0, "Valor da mao de obra nao pode ser negativo."],
+    min: [0, "Valor da mão de obra não pode ser negativo."],
   },
   valorProdutos: {
     type: Number,
-    min: [0, "Valor dos produtos nao pode ser negativo."],
+    min: [0, "Valor dos produtos não pode ser negativo."],
   },
   valorTotal: {
     type: Number,
-    min: [0, "Valor total nao pode ser negativo."],
+    min: [0, "Valor total não pode ser negativo."],
   },
   status: {
     type: String,
     enum: {
       values: ["agendado", "em_andamento", "concluido", "cancelado", "inativo"],
-      message: "Status do servico invalido.",
+      message: "Status do serviço inválido.",
     },
     default: "agendado",
     lowercase: true,

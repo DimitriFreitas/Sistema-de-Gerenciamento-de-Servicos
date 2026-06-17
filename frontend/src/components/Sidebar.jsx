@@ -98,7 +98,7 @@ function Sidebar({ isCollapsed, isOpen, onClose, onToggleCollapsed }) {
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <p className="eyebrow">Sistema principal</p>
-          <h1>Sistema de Gestao</h1>
+          <h1>Sistema de Gestão</h1>
         </div>
 
         <button
@@ -123,7 +123,7 @@ function Sidebar({ isCollapsed, isOpen, onClose, onToggleCollapsed }) {
 
         {supportNavigation.length ? (
           <div className="nav-group">
-            <p className="nav-group-title">Outros modulos</p>
+            <p className="nav-group-title">Outros módulos</p>
             {renderLinks(supportNavigation, onClose)}
           </div>
         ) : null}

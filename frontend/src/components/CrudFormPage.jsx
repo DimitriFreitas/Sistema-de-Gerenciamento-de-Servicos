@@ -104,7 +104,7 @@ function renderMultiReferenceField(field, value, relatedRecords, onChange, onBlu
           </label>
         );
       })}
-      {!records.length ? <p className="field-hint">Nenhum registro disponivel.</p> : null}
+      {!records.length ? <p className="field-hint">Nenhum registro disponível.</p> : null}
     </div>
   );
 }
@@ -151,8 +151,8 @@ function renderProductItemsField(field, value, relatedRecords, onChange) {
         <span>Produto</span>
         <span>Quantidade</span>
         <span>Local</span>
-        <span>Valor unitario</span>
-        <span>Acoes</span>
+        <span>Valor unitário</span>
+        <span>Ações</span>
       </div>
       {rows.map((row, index) => {
         const product = records.find((record) => record._id === getReferenceId(row.produto));
@@ -197,7 +197,7 @@ function renderProductItemsField(field, value, relatedRecords, onChange) {
               value={row.localOrigem ?? ""}
             />
             <input
-              aria-label="Valor unitario"
+              aria-label="Valor unitário"
               min="0"
               onChange={(event) => updateRow(index, { valorUnitario: event.target.value })}
               step="0.01"
@@ -364,7 +364,7 @@ function CrudFormPage({ moduleConfig, mode }) {
         const record = data.find((item) => item._id === recordId);
 
         if (!record) {
-          throw new Error(`${moduleConfig.singularLabel} nao encontrado.`);
+          throw new Error(`${moduleConfig.singularLabel} não encontrado.`);
         }
 
         setFormValues(getInitialFormValues(config.fields, record));
@@ -464,7 +464,7 @@ function CrudFormPage({ moduleConfig, mode }) {
             <div className="alert alert--info">Carregando dados do backend...</div>
           ) : null}
           {relatedState.status === "loading" ? (
-            <div className="alert alert--info">Carregando listas de selecao...</div>
+            <div className="alert alert--info">Carregando listas de seleção...</div>
           ) : null}
           {requestState.error ? <div className="alert alert--danger">{requestState.error}</div> : null}
           {relatedState.error ? <div className="alert alert--danger">{relatedState.error}</div> : null}

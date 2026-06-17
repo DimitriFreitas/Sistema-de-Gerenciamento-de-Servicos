@@ -12,7 +12,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FornecedorSchema = new mongoose.Schema({
   razaoSocial: {
     type: String,
-    required: [true, "Razao social e obrigatoria."],
+    required: [true, "Razão social é obrigatória."],
     trim: true,
   },
   nomeFantasia: {
@@ -21,13 +21,13 @@ const FornecedorSchema = new mongoose.Schema({
   },
   cnpj: {
     type: String,
-    required: [true, "CNPJ e obrigatorio."],
+    required: [true, "CNPJ é obrigatório."],
     unique: true,
     trim: true,
     set: formatCpfCnpj,
     validate: {
       validator: (value) => onlyDigits(value).length === 14 && isValidCpfCnpj(value),
-      message: "CNPJ invalido.",
+      message: "CNPJ inválido.",
     },
   },
   telefone: {
@@ -36,7 +36,7 @@ const FornecedorSchema = new mongoose.Schema({
     set: formatPhone,
     validate: {
       validator: isValidPhone,
-      message: "Informe um telefone com DDD e 10 ou 11 digitos.",
+      message: "Informe um telefone com DDD e 10 ou 11 dígitos.",
     },
   },
   email: {
@@ -45,7 +45,7 @@ const FornecedorSchema = new mongoose.Schema({
     lowercase: true,
     validate: {
       validator: (value) => !value || emailRegex.test(value),
-      message: "Informe um e-mail valido.",
+      message: "Informe um e-mail válido.",
     },
   },
   endereco: {

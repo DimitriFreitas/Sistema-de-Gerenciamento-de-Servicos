@@ -3,32 +3,32 @@ import servicoController from "../controlers/servico.controler.js";
 
 const router = Router();
 
-// Criar servico
+// Criar serviço
 router.post("/", (req, res) =>
   servicoController.criarServico(req, res)
 );
 
-// Listar todos os servicos
+// Listar todos os serviços
 router.get("/", (req, res) =>
   servicoController.listarServicos(req, res)
 );
 
-// Inativar ou cancelar servico
+// Inativar ou cancelar serviço
 router.put("/:id/inativar", (req, res) =>
   servicoController.inativarServico(req, res)
 );
 
-// Buscar servico por ID
+// Buscar serviço por ID
 router.get("/:id", (req, res) =>
   servicoController.buscarServico(req, res)
 );
 
-// Atualizar servico
+// Atualizar serviço
 router.put("/:id", (req, res) =>
   servicoController.atualizarServico(req, res)
 );
 
-// Deletar servico
+// Deletar serviço
 router.delete("/:id", (req, res) =>
   servicoController.deletarServico(req, res)
 );

@@ -10,7 +10,7 @@ function formatCurrency(value) {
   const amount = Number(value);
 
   if (Number.isNaN(amount)) {
-    return "Nao informado";
+    return "Não informado";
   }
 
   return new Intl.NumberFormat("pt-BR", {
@@ -21,13 +21,13 @@ function formatCurrency(value) {
 
 function formatDate(value) {
   if (!value) {
-    return "Nao informado";
+    return "Não informado";
   }
 
   const parsedDate = new Date(value);
 
   if (Number.isNaN(parsedDate.getTime())) {
-    return "Nao informado";
+    return "Não informado";
   }
 
   return new Intl.DateTimeFormat("pt-BR").format(parsedDate);
@@ -91,7 +91,7 @@ function buildProductPayload(values) {
 
 function getRecordLabel(record, fields = ["nome", "razaoSocial", "nomeFantasia", "tipo"]) {
   if (!record) {
-    return "Nao informado";
+    return "Não informado";
   }
 
   for (const field of fields) {
@@ -100,12 +100,12 @@ function getRecordLabel(record, fields = ["nome", "razaoSocial", "nomeFantasia",
     }
   }
 
-  return record._id || "Nao informado";
+  return record._id || "Não informado";
 }
 
 function getReferenceLabel(reference, fields) {
   if (!reference) {
-    return "Nao informado";
+    return "Não informado";
   }
 
   if (typeof reference === "object") {
@@ -190,7 +190,7 @@ function formatMovementType(type) {
   const normalizedType = normalizeText(type);
 
   if (normalizedType === "saida") {
-    return "Saida";
+    return "Saída";
   }
 
   if (normalizedType === "ajuste") {
@@ -198,7 +198,7 @@ function formatMovementType(type) {
   }
 
   if (normalizedType === "transferencia") {
-    return "Transferencia";
+    return "Transferência";
   }
 
   return "Entrada";
@@ -230,7 +230,7 @@ function formatServiceStatus(status) {
   }
 
   if (normalizedStatus === "concluido") {
-    return "Concluido";
+    return "Concluído";
   }
 
   if (normalizedStatus === "cancelado") {
@@ -355,7 +355,7 @@ function buildServicePayload(values) {
 }
 
 function requiredMessage(label) {
-  return `${label} e obrigatorio.`;
+  return `${label} é obrigatório.`;
 }
 
 function validateRequired(value, label) {
@@ -371,7 +371,7 @@ function validateEmail(value) {
 
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue)
     ? ""
-    : "Informe um e-mail valido.";
+    : "Informe um e-mail válido.";
 }
 
 function validateCpfCnpj(value) {
@@ -382,10 +382,10 @@ function validateCpfCnpj(value) {
   }
 
   if (digits.length !== 11 && digits.length !== 14) {
-    return "Informe 11 digitos para CPF ou 14 digitos para CNPJ.";
+    return "Informe 11 dígitos para CPF ou 14 dígitos para CNPJ.";
   }
 
-  return isValidCpfCnpj(value) ? "" : "CPF ou CNPJ invalido.";
+  return isValidCpfCnpj(value) ? "" : "CPF ou CNPJ inválido.";
 }
 
 function validateCpf(value) {
@@ -396,10 +396,10 @@ function validateCpf(value) {
   }
 
   if (digits.length !== 11) {
-    return "Informe 11 digitos para CPF.";
+    return "Informe 11 dígitos para CPF.";
   }
 
-  return isValidCpfCnpj(value) ? "" : "CPF invalido.";
+  return isValidCpfCnpj(value) ? "" : "CPF inválido.";
 }
 
 function validateCnpj(value) {
@@ -410,10 +410,10 @@ function validateCnpj(value) {
   }
 
   if (digits.length !== 14) {
-    return "Informe 14 digitos para CNPJ.";
+    return "Informe 14 dígitos para CNPJ.";
   }
 
-  return isValidCpfCnpj(value) ? "" : "CNPJ invalido.";
+  return isValidCpfCnpj(value) ? "" : "CNPJ inválido.";
 }
 
 function validatePhone(value) {
@@ -421,7 +421,7 @@ function validatePhone(value) {
     return "";
   }
 
-  return isValidPhone(value) ? "" : "Informe um telefone com DDD e 10 ou 11 digitos.";
+  return isValidPhone(value) ? "" : "Informe um telefone com DDD e 10 ou 11 dígitos.";
 }
 
 function validateNonNegativeNumber(value, label, { required = false } = {}) {
@@ -432,10 +432,10 @@ function validateNonNegativeNumber(value, label, { required = false } = {}) {
   const number = Number(value);
 
   if (Number.isNaN(number)) {
-    return `${label} deve ser um numero valido.`;
+    return `${label} deve ser um número válido.`;
   }
 
-  return number >= 0 ? "" : `${label} nao pode ser negativo.`;
+  return number >= 0 ? "" : `${label} não pode ser negativo.`;
 }
 
 function validateProductDate(value) {
@@ -445,7 +445,7 @@ function validateProductDate(value) {
 
   const parsedDate = new Date(value);
 
-  return Number.isNaN(parsedDate.getTime()) ? "Informe uma data valida." : "";
+  return Number.isNaN(parsedDate.getTime()) ? "Informe uma data válida." : "";
 }
 
 function validateProductItems(value) {
@@ -461,7 +461,7 @@ function validateProductItems(value) {
     }
 
     if (row.valorUnitario !== "" && row.valorUnitario !== undefined && Number(row.valorUnitario) < 0) {
-      return "Valor unitario nao pode ser negativo.";
+      return "Valor unitário não pode ser negativo.";
     }
   }
 
@@ -485,7 +485,7 @@ function validateStockMovementForm(values, relatedRecords) {
   const requestedAmount = Number(values.quantidade ?? 0);
 
   if (availableStock <= 0) {
-    return "Produto sem estoque nao pode ter saida. Registre uma entrada antes.";
+    return "Produto sem estoque não pode ter saída. Registre uma entrada antes.";
   }
 
   if (requestedAmount > availableStock) {
@@ -511,7 +511,7 @@ function validateServiceForm(values, relatedRecords) {
     const requestedAmount = Number(item.quantidade ?? 0);
 
     if (availableStock <= 0) {
-      return `${produto.nome} esta sem estoque. Registre uma entrada antes de usar no servico.`;
+      return `${produto.nome} está sem estoque. Registre uma entrada antes de usar no serviço.`;
     }
 
     if (requestedAmount > availableStock) {
@@ -594,17 +594,17 @@ function serviceProductsField() {
 function serviceFields({ includeCompletionDate = false, statusOptions, responsavelPlaceholder }) {
   return [
     serviceClientField(),
-    { name: "tipo", label: "Tipo de servico", placeholder: "Instalacao, manutencao, reparo", validate: (value) => validateRequired(value, "Tipo de servico") },
-    { name: "descricao", label: "Descricao", type: "textarea", placeholder: "Descreva o servico", fullWidth: true },
+    { name: "tipo", label: "Tipo de serviço", placeholder: "Instalação, manutenção, reparo", validate: (value) => validateRequired(value, "Tipo de serviço") },
+    { name: "descricao", label: "Descrição", type: "textarea", placeholder: "Descreva o serviço", fullWidth: true },
     { name: "dataAgendamento", label: "Data de agendamento", type: "date", validate: validateProductDate },
-    { name: "dataInicio", label: "Data de inicio", type: "date", validate: validateProductDate },
+    { name: "dataInicio", label: "Data de início", type: "date", validate: validateProductDate },
     ...(includeCompletionDate
-      ? [{ name: "dataConclusao", label: "Data de conclusao", type: "date", validate: validateProductDate }]
+      ? [{ name: "dataConclusao", label: "Data de conclusão", type: "date", validate: validateProductDate }]
       : []),
-    { name: "garantiaAte", label: "Garantia ate", type: "date", validate: validateProductDate },
+    { name: "garantiaAte", label: "Garantia até", type: "date", validate: validateProductDate },
     serviceTeamField(),
     serviceProductsField(),
-    { name: "valorMaoDeObra", label: "Mao de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mao de obra") },
+    { name: "valorMaoDeObra", label: "Mão de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mão de obra") },
     {
       name: "status",
       label: "Status",
@@ -613,8 +613,8 @@ function serviceFields({ includeCompletionDate = false, statusOptions, responsav
       defaultValue: "Agendado",
       formatInput: formatServiceStatus,
     },
-    { name: "responsavel", label: "Responsavel", placeholder: responsavelPlaceholder },
-    { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+    { name: "responsavel", label: "Responsável", placeholder: responsavelPlaceholder },
+    { name: "observacao", label: "Observação", placeholder: "Observação interna", fullWidth: true },
   ];
 }
 
@@ -627,11 +627,11 @@ export const moduleConfigs = {
     basePath: "/clientes",
     contextLabel: "Cadastro e atendimento",
     summary:
-      "Modulo de clientes com consulta, cadastro, edicao e inativacao integrados ao backend.",
+      "Módulo de clientes com consulta, cadastro, edição e inativação integrados ao backend.",
 
     routeMeta: {
       base: {
-        eyebrow: "Modulo",
+        eyebrow: "Módulo",
         label: "Clientes",
       },
       list: {
@@ -643,17 +643,17 @@ export const moduleConfigs = {
         label: "Novo cliente",
       },
       edit: {
-        eyebrow: "Edicao",
+        eyebrow: "Edição",
         label: "Editar cliente",
       },
       deactivate: {
-        eyebrow: "Inativacao",
+        eyebrow: "Inativação",
         label: "Inativar cliente",
       },
     },
     actions: [
       {
-        label: "Menu do modulo",
+        label: "Menu do módulo",
         path: "/clientes",
       },
       {
@@ -692,17 +692,17 @@ export const moduleConfigs = {
       columns: [
         {
           label: "Nome",
-          render: (record) => record.nome || "Nao informado",
+          render: (record) => record.nome || "Não informado",
           sortValue: (record) => record.nome || "",
         },
         {
           label: "CPF / CNPJ",
-          render: (record) => formatCpfCnpj(record.cpf_cnpj) || "Nao informado",
+          render: (record) => formatCpfCnpj(record.cpf_cnpj) || "Não informado",
           sortValue: (record) => record.cpf_cnpj || "",
         },
         {
           label: "Telefone",
-          render: (record) => formatPhone(record.telefone) || "Nao informado",
+          render: (record) => formatPhone(record.telefone) || "Não informado",
           sortValue: (record) => record.telefone || "",
         },
         {
@@ -727,7 +727,7 @@ export const moduleConfigs = {
       detailCard: {
         title: "Detalhes do cliente",
         description:
-          "Os dados abaixo sao carregados diretamente da API para apoiar consulta, edicao e atualizacao de status.",
+          "Os dados abaixo são carregados diretamente da API para apoiar consulta, edição e atualização de status.",
         tabs: ["Dados Cadastrais", "Contato", "Status"],
         facts(record) {
           if (!record) {
@@ -735,9 +735,9 @@ export const moduleConfigs = {
           }
 
           return [
-            { label: "Cliente", value: record.nome || "Nao informado" },
-            { label: "Documento", value: formatCpfCnpj(record.cpf_cnpj) || "Nao informado" },
-            { label: "E-mail", value: record.email || "Nao informado" },
+            { label: "Cliente", value: record.nome || "Não informado" },
+            { label: "Documento", value: formatCpfCnpj(record.cpf_cnpj) || "Não informado" },
+            { label: "E-mail", value: record.email || "Não informado" },
             { label: "Status", value: normalizeClientStatus(record.status) },
           ];
         },
@@ -746,8 +746,8 @@ export const moduleConfigs = {
     create: {
       heroTitle: "Cadastrar cliente",
       sideNotes: [
-        "Os dados sao enviados diretamente para a API de clientes.",
-        "Nome, e-mail e CPF ou CNPJ sao obrigatorios.",
+        "Os dados são enviados diretamente para a API de clientes.",
+        "Nome, e-mail e CPF ou CNPJ são obrigatórios.",
         "Após salvar, a listagem pode ser consultada imediatamente.",
       ],
       fields: [
@@ -767,14 +767,14 @@ export const moduleConfigs = {
     edit: {
       heroTitle: "Editar cliente",
       heroDescription:
-        "Edicao dos dados cadastrais do cliente selecionado com persistencia imediata na API.",
+        "Edição dos dados cadastrais do cliente selecionado com persistência imediata na API.",
       sideNotes: [
-        "Os campos sao preenchidos com os dados atuais do backend.",
-        "O status pode ser ajustado nesta tela quando necessario.",
-        "As alteracoes salvas ficam disponiveis imediatamente na listagem.",
+        "Os campos são preenchidos com os dados atuais do backend.",
+        "O status pode ser ajustado nesta tela quando necessário.",
+        "As alterações salvas ficam disponíveis imediatamente na listagem.",
       ],
       alert:
-        "Selecione um cliente na consulta para abrir a edicao com o registro correto.",
+        "Selecione um cliente na consulta para abrir a edição com o registro correto.",
       fields: [
         { name: "nome", label: "Nome", placeholder: "Informe o nome do cliente", validate: (value) => validateRequired(value, "Nome") },
         { name: "cpf_cnpj", label: "CPF / CNPJ", placeholder: "000.000.000-00 ou 00.000.000/0000-00", formatInput: formatCpfCnpj, validate: validateCpfCnpj },
@@ -789,7 +789,7 @@ export const moduleConfigs = {
           formatInput: normalizeClientStatus,
         },
       ],
-      submitLabel: "Salvar alteracoes",
+      submitLabel: "Salvar alterações",
       successMessage: "Cliente atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/clientes/listar",
@@ -800,14 +800,14 @@ export const moduleConfigs = {
     deactivate: {
       heroTitle: "Inativar cliente",
       heroDescription:
-        "A inativacao atualiza o status do cliente para inativo sem remover o cadastro do banco.",
+        "A inativação atualiza o status do cliente para inativo sem remover o cadastro do banco.",
       warning:
-        "Revise os dados do cliente antes de confirmar a inativacao. A alteracao sera persistida imediatamente na API.",
+        "Revise os dados do cliente antes de confirmar a inativação. A alteração será persistida imediatamente na API.",
       optionalField: {
-        label: "Observacao da inativacao",
-        placeholder: "Registre uma observacao interna para referencia da equipe.",
+        label: "Observação da inativação",
+        placeholder: "Registre uma observação interna para referência da equipe.",
       },
-      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
+      actionButtons: [{ label: "Confirmar inativação", variant: "danger", action: "confirm" }],
       successMessage: "Cliente inativado com sucesso.",
       facts(record) {
         if (!record) {
@@ -815,9 +815,9 @@ export const moduleConfigs = {
         }
 
         return [
-          { label: "Cliente", value: record.nome || "Nao informado" },
-          { label: "Documento", value: formatCpfCnpj(record.cpf_cnpj) || "Nao informado" },
-          { label: "E-mail", value: record.email || "Nao informado" },
+          { label: "Cliente", value: record.nome || "Não informado" },
+          { label: "Documento", value: formatCpfCnpj(record.cpf_cnpj) || "Não informado" },
+          { label: "E-mail", value: record.email || "Não informado" },
           { label: "Status atual", value: normalizeClientStatus(record.status) },
         ];
       },
@@ -838,74 +838,74 @@ export const moduleConfigs = {
     basePath: "/produtos",
     contextLabel: "Estoque e cadastro",
     summary:
-      "Modulo de produtos com consulta, cadastro, edicao e inativacao integrados ao backend.",
+      "Módulo de produtos com consulta, cadastro, edição e inativação integrados ao backend.",
     routeMeta: {
       base: {
-        eyebrow: "Modulo",
+        eyebrow: "Módulo",
         label: "Produtos",
         description: "Cadastro e consulta de produtos com dados reais do estoque.",
       },
       list: {
         eyebrow: "Consulta",
         label: "Consultar produtos",
-        description: "Listagem do estoque com filtros e acoes do cadastro.",
+        description: "Listagem do estoque com filtros e ações do cadastro.",
       },
       create: {
         eyebrow: "Cadastro",
         label: "Novo produto",
-        description: "Cadastro de produto com descricao, estoque e valores.",
+        description: "Cadastro de produto com descrição, estoque e valores.",
       },
       edit: {
-        eyebrow: "Edicao",
+        eyebrow: "Edição",
         label: "Editar produto",
-        description: "Atualizacao dos dados do produto selecionado.",
+        description: "Atualização dos dados do produto selecionado.",
       },
       deactivate: {
-        eyebrow: "Inativacao",
+        eyebrow: "Inativação",
         label: "Inativar produto",
-        description: "Atualizacao do status do produto selecionado.",
+        description: "Atualização do status do produto selecionado.",
       },
     },
     actions: [
       {
-        label: "Menu do modulo",
+        label: "Menu do módulo",
         path: "/produtos",
-        description: "Resumo do modulo e atalhos para todas as operacoes.",
+        description: "Resumo do módulo e atalhos para todas as operações.",
       },
       {
         label: "Consultar produtos",
         path: "/produtos/listar",
-        description: "Listagem com filtros por nome, descricao e saldo de estoque.",
+        description: "Listagem com filtros por nome, descrição e saldo de estoque.",
       },
       {
         label: "Novo produto",
         path: "/produtos/novo",
-        description: "Cadastro com descricao, valores e quantidades.",
+        description: "Cadastro com descrição, valores e quantidades.",
       },
       {
         label: "Editar produto",
         path: "/produtos/editar",
-        description: "Atualizacao dos campos do produto selecionado.",
+        description: "Atualização dos campos do produto selecionado.",
       },
       {
         label: "Inativar produto",
         path: "/produtos/inativar",
-        description: "Atualizacao do status do produto selecionado.",
+        description: "Atualização do status do produto selecionado.",
       },
     ],
     list: {
       heroTitle: "Consultar produtos",
       heroDescription:
-        "A consulta carrega os produtos do backend, permite filtrar por nome, descricao e faixa de estoque e destaca o item selecionado.",
+        "A consulta carrega os produtos do backend, permite filtrar por nome, descrição e faixa de estoque e destaca o item selecionado.",
       emptyState: "Nenhum produto encontrado com os filtros aplicados.",
       filters: [
         { name: "nome", label: "Nome", placeholder: "Buscar por nome" },
-        { name: "descricao", label: "Descricao", placeholder: "Filtrar por descricao" },
+        { name: "descricao", label: "Descrição", placeholder: "Filtrar por descrição" },
         {
           name: "estoque",
           label: "Estoque",
           type: "select",
-          options: ["Todos", "Disponivel", "Abaixo do minimo", "Sem estoque"],
+          options: ["Todos", "Disponível", "Abaixo do mínimo", "Sem estoque"],
           defaultValue: "Todos",
         },
         {
@@ -919,12 +919,12 @@ export const moduleConfigs = {
       columns: [
         {
           label: "Nome",
-          render: (record) => record.nome || "Nao informado",
+          render: (record) => record.nome || "Não informado",
           sortValue: (record) => record.nome || "",
         },
         {
-          label: "Descricao",
-          render: (record) => record.descricao || "Nao informado",
+          label: "Descrição",
+          render: (record) => record.descricao || "Não informado",
           sortValue: (record) => record.descricao || "",
         },
         {
@@ -933,7 +933,7 @@ export const moduleConfigs = {
           sortValue: (record) => Number(record.quantidadeAtual ?? 0),
         },
         {
-          label: "Estoque minimo",
+          label: "Estoque mínimo",
           render: (record) => String(record.quantidadeMinima ?? 0),
           sortValue: (record) => Number(record.quantidadeMinima ?? 0),
         },
@@ -959,8 +959,8 @@ export const moduleConfigs = {
           currentAmount <= 0
             ? "Sem estoque"
             : minimumAmount > 0 && currentAmount <= minimumAmount
-              ? "Abaixo do minimo"
-              : "Disponivel";
+              ? "Abaixo do mínimo"
+              : "Disponível";
         const status = normalizeClientStatus(record.status);
 
         return (
@@ -973,7 +973,7 @@ export const moduleConfigs = {
       detailCard: {
         title: "Detalhes do produto",
         description:
-          "Os dados abaixo sao carregados da API de produtos para apoiar consulta, edicao e atualizacao de status.",
+          "Os dados abaixo são carregados da API de produtos para apoiar consulta, edição e atualização de status.",
         tabs: ["Cadastro", "Estoque", "Status"],
         facts(record) {
           if (!record) {
@@ -981,8 +981,8 @@ export const moduleConfigs = {
           }
 
           return [
-            { label: "Produto", value: record.nome || "Nao informado" },
-            { label: "Descricao", value: record.descricao || "Nao informado" },
+            { label: "Produto", value: record.nome || "Não informado" },
+            { label: "Descrição", value: record.descricao || "Não informado" },
             { label: "Estoque atual", value: String(record.quantidadeAtual ?? 0) },
             { label: "Validade", value: formatDate(record.dataValidade) },
             { label: "Status", value: normalizeClientStatus(record.status) },
@@ -993,26 +993,26 @@ export const moduleConfigs = {
     create: {
       heroTitle: "Cadastrar produto",
       heroDescription:
-        "Formulario integrado ao backend para criar produtos com descricao, estoque e valores.",
+        "Formulário integrado ao backend para criar produtos com descrição, estoque e valores.",
       sideNotes: [
         "Os campos seguem o contrato atual da API de produtos.",
-        "Custo, preco e quantidades aceitam apenas valores numericos.",
+        "Custo, preço e quantidades aceitam apenas valores numéricos.",
         "A data de validade e opcional.",
       ],
       fields: [
         { name: "nome", label: "Nome do produto", placeholder: "Ex.: Disjuntor Tripolar", validate: (value) => validateRequired(value, "Nome do produto") },
         {
           name: "descricao",
-          label: "Descricao",
+          label: "Descrição",
           type: "textarea",
           placeholder: "Descreva o produto cadastrado",
           fullWidth: true,
-          validate: (value) => validateRequired(value, "Descricao"),
+          validate: (value) => validateRequired(value, "Descrição"),
         },
         { name: "quantidadeAtual", label: "Quantidade atual", type: "number", placeholder: "0", min: 0, validate: (value) => validateNonNegativeNumber(value, "Quantidade atual") },
-        { name: "quantidadeMinima", label: "Quantidade minima", type: "number", placeholder: "0", min: 0, validate: (value) => validateNonNegativeNumber(value, "Quantidade minima") },
+        { name: "quantidadeMinima", label: "Quantidade mínima", type: "number", placeholder: "0", min: 0, validate: (value) => validateNonNegativeNumber(value, "Quantidade mínima") },
         { name: "custo", label: "Custo", type: "number", placeholder: "0.00", min: 0, step: "0.01", validate: (value) => validateNonNegativeNumber(value, "Custo") },
-        { name: "preco", label: "Preco", type: "number", placeholder: "0.00", min: 0, step: "0.01", validate: (value) => validateNonNegativeNumber(value, "Preco") },
+        { name: "preco", label: "Preço", type: "number", placeholder: "0.00", min: 0, step: "0.01", validate: (value) => validateNonNegativeNumber(value, "Preço") },
         { name: "dataValidade", label: "Data de validade", type: "date", validate: validateProductDate },
         {
           name: "status",
@@ -1034,28 +1034,28 @@ export const moduleConfigs = {
     edit: {
       heroTitle: "Editar produto",
       heroDescription:
-        "Edicao do produto selecionado com persistencia direta dos campos no backend.",
+        "Edição do produto selecionado com persistência direta dos campos no backend.",
       sideNotes: [
-        "Os campos sao preenchidos com os dados atuais do produto.",
-        "Descricao, estoque e valores podem ser ajustados na mesma tela.",
-        "As alteracoes salvas ficam visiveis imediatamente na consulta.",
+        "Os campos são preenchidos com os dados atuais do produto.",
+        "Descrição, estoque e valores podem ser ajustados na mesma tela.",
+        "As alterações salvas ficam visíveis imediatamente na consulta.",
       ],
       alert:
-        "Selecione um produto na consulta para abrir a edicao com o registro correto.",
+        "Selecione um produto na consulta para abrir a edição com o registro correto.",
       fields: [
         { name: "nome", label: "Nome do produto", placeholder: "Ex.: Disjuntor Tripolar", validate: (value) => validateRequired(value, "Nome do produto") },
         {
           name: "descricao",
-          label: "Descricao",
+          label: "Descrição",
           type: "textarea",
           placeholder: "Descreva o produto cadastrado",
           fullWidth: true,
-          validate: (value) => validateRequired(value, "Descricao"),
+          validate: (value) => validateRequired(value, "Descrição"),
         },
         { name: "quantidadeAtual", label: "Quantidade atual", type: "number", placeholder: "0", min: 0, validate: (value) => validateNonNegativeNumber(value, "Quantidade atual") },
-        { name: "quantidadeMinima", label: "Quantidade minima", type: "number", placeholder: "0", min: 0, validate: (value) => validateNonNegativeNumber(value, "Quantidade minima") },
+        { name: "quantidadeMinima", label: "Quantidade mínima", type: "number", placeholder: "0", min: 0, validate: (value) => validateNonNegativeNumber(value, "Quantidade mínima") },
         { name: "custo", label: "Custo", type: "number", placeholder: "0.00", min: 0, step: "0.01", validate: (value) => validateNonNegativeNumber(value, "Custo") },
-        { name: "preco", label: "Preco", type: "number", placeholder: "0.00", min: 0, step: "0.01", validate: (value) => validateNonNegativeNumber(value, "Preco") },
+        { name: "preco", label: "Preço", type: "number", placeholder: "0.00", min: 0, step: "0.01", validate: (value) => validateNonNegativeNumber(value, "Preço") },
         { name: "dataValidade", label: "Data de validade", type: "date", validate: validateProductDate },
         {
           name: "status",
@@ -1070,11 +1070,11 @@ export const moduleConfigs = {
         title: "Resumo do cadastro",
         items: [
           "Atualize os dados do produto conforme a necessidade operacional.",
-          "Os valores sao enviados para o backend no formato numerico.",
-          "A consulta reflete as alteracoes salvas apos a resposta da API.",
+          "Os valores são enviados para o backend no formato numérico.",
+          "A consulta reflete as alterações salvas após a resposta da API.",
         ],
       },
-      submitLabel: "Salvar alteracoes",
+      submitLabel: "Salvar alterações",
       successMessage: "Produto atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/produtos/listar",
@@ -1085,14 +1085,14 @@ export const moduleConfigs = {
     deactivate: {
       heroTitle: "Inativar produto",
       heroDescription:
-        "A inativacao atualiza o status do produto para inativo sem remover o cadastro do banco.",
+        "A inativação atualiza o status do produto para inativo sem remover o cadastro do banco.",
       warning:
-        "Revise os dados do produto antes de confirmar. A alteracao sera persistida imediatamente na API.",
+        "Revise os dados do produto antes de confirmar. A alteração será persistida imediatamente na API.",
       optionalField: {
-        label: "Observacao da inativacao",
-        placeholder: "Registre uma observacao interna antes de inativar o produto.",
+        label: "Observação da inativação",
+        placeholder: "Registre uma observação interna antes de inativar o produto.",
       },
-      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
+      actionButtons: [{ label: "Confirmar inativação", variant: "danger", action: "confirm" }],
       successMessage: "Produto inativado com sucesso.",
       facts(record) {
         if (!record) {
@@ -1100,8 +1100,8 @@ export const moduleConfigs = {
         }
 
         return [
-          { label: "Produto", value: record.nome || "Nao informado" },
-          { label: "Descricao", value: record.descricao || "Nao informado" },
+          { label: "Produto", value: record.nome || "Não informado" },
+          { label: "Descrição", value: record.descricao || "Não informado" },
           { label: "Estoque atual", value: String(record.quantidadeAtual ?? 0) },
           { label: "Validade", value: formatDate(record.dataValidade) },
           { label: "Status atual", value: normalizeClientStatus(record.status) },
@@ -1124,16 +1124,16 @@ export const moduleConfigs = {
     basePath: "/fornecedores",
     contextLabel: "Compras e suprimentos",
     summary:
-      "Modulo de fornecedores com cadastro, consulta, edicao e inativacao de parceiros.",
+      "Módulo de fornecedores com cadastro, consulta, edição e inativação de parceiros.",
     routeMeta: {
-      base: { eyebrow: "Modulo", label: "Fornecedores" },
+      base: { eyebrow: "Módulo", label: "Fornecedores" },
       list: { eyebrow: "Consulta", label: "Consultar fornecedores" },
       create: { eyebrow: "Cadastro", label: "Novo fornecedor" },
-      edit: { eyebrow: "Edicao", label: "Editar fornecedor" },
-      deactivate: { eyebrow: "Inativacao", label: "Inativar fornecedor" },
+      edit: { eyebrow: "Edição", label: "Editar fornecedor" },
+      deactivate: { eyebrow: "Inativação", label: "Inativar fornecedor" },
     },
     actions: [
-      { label: "Menu do modulo", path: "/fornecedores" },
+      { label: "Menu do módulo", path: "/fornecedores" },
       { label: "Consultar fornecedores", path: "/fornecedores/listar" },
       { label: "Novo fornecedor", path: "/fornecedores/novo" },
       { label: "Editar fornecedor", path: "/fornecedores/editar" },
@@ -1143,7 +1143,7 @@ export const moduleConfigs = {
       heroTitle: "Consultar fornecedores",
       emptyState: "Nenhum fornecedor encontrado com os filtros aplicados.",
       filters: [
-        { name: "razaoSocial", label: "Razao social", placeholder: "Buscar por razao social" },
+        { name: "razaoSocial", label: "Razão social", placeholder: "Buscar por razão social" },
         { name: "cnpj", label: "CNPJ", placeholder: "Filtrar por CNPJ" },
         {
           name: "status",
@@ -1155,23 +1155,23 @@ export const moduleConfigs = {
       ],
       columns: [
         {
-          label: "Razao social",
-          render: (record) => record.razaoSocial || "Nao informado",
+          label: "Razão social",
+          render: (record) => record.razaoSocial || "Não informado",
           sortValue: (record) => record.razaoSocial || "",
         },
         {
           label: "Nome fantasia",
-          render: (record) => record.nomeFantasia || "Nao informado",
+          render: (record) => record.nomeFantasia || "Não informado",
           sortValue: (record) => record.nomeFantasia || "",
         },
         {
           label: "CNPJ",
-          render: (record) => formatCpfCnpj(record.cnpj) || "Nao informado",
+          render: (record) => formatCpfCnpj(record.cnpj) || "Não informado",
           sortValue: (record) => record.cnpj || "",
         },
         {
           label: "Telefone",
-          render: (record) => formatPhone(record.telefone) || "Nao informado",
+          render: (record) => formatPhone(record.telefone) || "Não informado",
           sortValue: (record) => record.telefone || "",
         },
         {
@@ -1202,10 +1202,10 @@ export const moduleConfigs = {
           }
 
           return [
-            { label: "Razao social", value: record.razaoSocial || "Nao informado" },
-            { label: "Nome fantasia", value: record.nomeFantasia || "Nao informado" },
-            { label: "CNPJ", value: formatCpfCnpj(record.cnpj) || "Nao informado" },
-            { label: "E-mail", value: record.email || "Nao informado" },
+            { label: "Razão social", value: record.razaoSocial || "Não informado" },
+            { label: "Nome fantasia", value: record.nomeFantasia || "Não informado" },
+            { label: "CNPJ", value: formatCpfCnpj(record.cnpj) || "Não informado" },
+            { label: "E-mail", value: record.email || "Não informado" },
             { label: "Status", value: normalizeClientStatus(record.status) },
           ];
         },
@@ -1214,16 +1214,16 @@ export const moduleConfigs = {
     create: {
       heroTitle: "Cadastrar fornecedor",
       sideNotes: [
-        "Razao social e CNPJ sao obrigatorios.",
-        "CNPJ, telefone e e-mail seguem as validacoes do backend.",
+        "Razão social e CNPJ são obrigatórios.",
+        "CNPJ, telefone e e-mail seguem as validações do backend.",
       ],
       fields: [
-        { name: "razaoSocial", label: "Razao social", placeholder: "Informe a razao social", validate: (value) => validateRequired(value, "Razao social") },
+        { name: "razaoSocial", label: "Razão social", placeholder: "Informe a razão social", validate: (value) => validateRequired(value, "Razão social") },
         { name: "nomeFantasia", label: "Nome fantasia", placeholder: "Informe o nome fantasia" },
         { name: "cnpj", label: "CNPJ", placeholder: "00.000.000/0000-00", formatInput: formatCpfCnpj, validate: validateCnpj },
         { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
         { name: "email", label: "E-mail", type: "email", placeholder: "fornecedor@empresa.com", validate: (value) => (String(value ?? "").trim() ? validateEmail(value) : "") },
-        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+        { name: "endereco", label: "Endereço", placeholder: "Informe o endereço", fullWidth: true },
       ],
       submitLabel: "Salvar fornecedor",
       successMessage: "Fornecedor cadastrado com sucesso.",
@@ -1235,14 +1235,14 @@ export const moduleConfigs = {
     },
     edit: {
       heroTitle: "Editar fornecedor",
-      alert: "Selecione um fornecedor na consulta para abrir a edicao com o registro correto.",
+      alert: "Selecione um fornecedor na consulta para abrir a edição com o registro correto.",
       fields: [
-        { name: "razaoSocial", label: "Razao social", placeholder: "Informe a razao social", validate: (value) => validateRequired(value, "Razao social") },
+        { name: "razaoSocial", label: "Razão social", placeholder: "Informe a razão social", validate: (value) => validateRequired(value, "Razão social") },
         { name: "nomeFantasia", label: "Nome fantasia", placeholder: "Informe o nome fantasia" },
         { name: "cnpj", label: "CNPJ", placeholder: "00.000.000/0000-00", formatInput: formatCpfCnpj, validate: validateCnpj },
         { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
         { name: "email", label: "E-mail", type: "email", placeholder: "fornecedor@empresa.com", validate: (value) => (String(value ?? "").trim() ? validateEmail(value) : "") },
-        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+        { name: "endereco", label: "Endereço", placeholder: "Informe o endereço", fullWidth: true },
         {
           name: "status",
           label: "Status",
@@ -1252,7 +1252,7 @@ export const moduleConfigs = {
           formatInput: normalizeClientStatus,
         },
       ],
-      submitLabel: "Salvar alteracoes",
+      submitLabel: "Salvar alterações",
       successMessage: "Fornecedor atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/fornecedores/listar",
@@ -1263,12 +1263,12 @@ export const moduleConfigs = {
     deactivate: {
       heroTitle: "Inativar fornecedor",
       warning:
-        "A inativacao altera o status do fornecedor sem remover o cadastro.",
+        "A inativação altera o status do fornecedor sem remover o cadastro.",
       optionalField: {
-        label: "Observacao da inativacao",
-        placeholder: "Registre uma observacao interna antes de inativar.",
+        label: "Observação da inativação",
+        placeholder: "Registre uma observação interna antes de inativar.",
       },
-      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
+      actionButtons: [{ label: "Confirmar inativação", variant: "danger", action: "confirm" }],
       successMessage: "Fornecedor inativado com sucesso.",
       facts(record) {
         if (!record) {
@@ -1276,8 +1276,8 @@ export const moduleConfigs = {
         }
 
         return [
-          { label: "Fornecedor", value: record.razaoSocial || "Nao informado" },
-          { label: "CNPJ", value: formatCpfCnpj(record.cnpj) || "Nao informado" },
+          { label: "Fornecedor", value: record.razaoSocial || "Não informado" },
+          { label: "CNPJ", value: formatCpfCnpj(record.cnpj) || "Não informado" },
           { label: "Status atual", value: normalizeClientStatus(record.status) },
         ];
       },
@@ -1290,29 +1290,29 @@ export const moduleConfigs = {
   funcionarios: {
     key: "funcionarios",
     apiResource: "funcionarios",
-    label: "Funcionarios",
-    singularLabel: "funcionario",
+    label: "Funcionários",
+    singularLabel: "funcionário",
     basePath: "/funcionarios",
-    contextLabel: "Equipe e permissoes",
+    contextLabel: "Equipe e permissões",
     summary:
-      "Modulo de funcionarios com cadastro, consulta, edicao e desligamento operacional.",
+      "Módulo de funcionários com cadastro, consulta, edição e desligamento operacional.",
     routeMeta: {
-      base: { eyebrow: "Modulo", label: "Funcionarios" },
-      list: { eyebrow: "Consulta", label: "Consultar funcionarios" },
-      create: { eyebrow: "Cadastro", label: "Novo funcionario" },
-      edit: { eyebrow: "Edicao", label: "Editar funcionario" },
-      deactivate: { eyebrow: "Inativacao", label: "Inativar funcionario" },
+      base: { eyebrow: "Módulo", label: "Funcionários" },
+      list: { eyebrow: "Consulta", label: "Consultar funcionários" },
+      create: { eyebrow: "Cadastro", label: "Novo funcionário" },
+      edit: { eyebrow: "Edição", label: "Editar funcionário" },
+      deactivate: { eyebrow: "Inativação", label: "Inativar funcionário" },
     },
     actions: [
-      { label: "Menu do modulo", path: "/funcionarios" },
-      { label: "Consultar funcionarios", path: "/funcionarios/listar" },
-      { label: "Novo funcionario", path: "/funcionarios/novo" },
-      { label: "Editar funcionario", path: "/funcionarios/editar" },
-      { label: "Inativar funcionario", path: "/funcionarios/inativar" },
+      { label: "Menu do módulo", path: "/funcionarios" },
+      { label: "Consultar funcionários", path: "/funcionarios/listar" },
+      { label: "Novo funcionário", path: "/funcionarios/novo" },
+      { label: "Editar funcionário", path: "/funcionarios/editar" },
+      { label: "Inativar funcionário", path: "/funcionarios/inativar" },
     ],
     list: {
-      heroTitle: "Consultar funcionarios",
-      emptyState: "Nenhum funcionario encontrado com os filtros aplicados.",
+      heroTitle: "Consultar funcionários",
+      emptyState: "Nenhum funcionário encontrado com os filtros aplicados.",
       filters: [
         { name: "nome", label: "Nome", placeholder: "Buscar por nome" },
         { name: "cpf", label: "CPF", placeholder: "Filtrar por CPF" },
@@ -1326,10 +1326,10 @@ export const moduleConfigs = {
         },
       ],
       columns: [
-        { label: "Nome", render: (record) => record.nome || "Nao informado", sortValue: (record) => record.nome || "" },
-        { label: "CPF", render: (record) => formatCpfCnpj(record.cpf) || "Nao informado", sortValue: (record) => record.cpf || "" },
-        { label: "Cargo", render: (record) => record.cargo || "Nao informado", sortValue: (record) => record.cargo || "" },
-        { label: "Setor", render: (record) => record.setor || "Nao informado", sortValue: (record) => record.setor || "" },
+        { label: "Nome", render: (record) => record.nome || "Não informado", sortValue: (record) => record.nome || "" },
+        { label: "CPF", render: (record) => formatCpfCnpj(record.cpf) || "Não informado", sortValue: (record) => record.cpf || "" },
+        { label: "Cargo", render: (record) => record.cargo || "Não informado", sortValue: (record) => record.cargo || "" },
+        { label: "Setor", render: (record) => record.setor || "Não informado", sortValue: (record) => record.setor || "" },
         {
           label: "Status",
           type: "status",
@@ -1351,28 +1351,28 @@ export const moduleConfigs = {
         );
       },
       detailCard: {
-        title: "Detalhes do funcionario",
-        tabs: ["Cadastro", "Vinculo", "Status"],
+        title: "Detalhes do funcionário",
+        tabs: ["Cadastro", "Vínculo", "Status"],
         facts(record) {
           if (!record) {
             return [];
           }
 
           return [
-            { label: "Funcionario", value: record.nome || "Nao informado" },
-            { label: "CPF", value: formatCpfCnpj(record.cpf) || "Nao informado" },
-            { label: "Cargo", value: record.cargo || "Nao informado" },
-            { label: "Setor", value: record.setor || "Nao informado" },
+            { label: "Funcionário", value: record.nome || "Não informado" },
+            { label: "CPF", value: formatCpfCnpj(record.cpf) || "Não informado" },
+            { label: "Cargo", value: record.cargo || "Não informado" },
+            { label: "Setor", value: record.setor || "Não informado" },
             { label: "Status", value: normalizeClientStatus(record.status) },
           ];
         },
       },
     },
     create: {
-      heroTitle: "Cadastrar funcionario",
+      heroTitle: "Cadastrar funcionário",
       sideNotes: [
-        "Nome, CPF, cargo, setor e tipo de vinculo sao obrigatorios.",
-        "Permissoes devem ser separadas por virgula.",
+        "Nome, CPF, cargo, setor e tipo de vínculo são obrigatórios.",
+        "Permissões devem ser separadas por vírgula.",
       ],
       fields: [
         { name: "nome", label: "Nome", placeholder: "Informe o nome", validate: (value) => validateRequired(value, "Nome") },
@@ -1382,13 +1382,13 @@ export const moduleConfigs = {
         { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
         { name: "cargo", label: "Cargo", placeholder: "Informe o cargo", validate: (value) => validateRequired(value, "Cargo") },
         { name: "setor", label: "Setor", placeholder: "Informe o setor", validate: (value) => validateRequired(value, "Setor") },
-        { name: "tipoVinculo", label: "Tipo de vinculo", placeholder: "CLT, PJ, temporario", validate: (value) => validateRequired(value, "Tipo de vinculo") },
-        { name: "dataAdmissao", label: "Data de admissao", type: "date", validate: validateProductDate },
-        { name: "permissoes", label: "Permissoes", placeholder: "admin, estoque, servicos", fullWidth: true },
-        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+        { name: "tipoVinculo", label: "Tipo de vínculo", placeholder: "CLT, PJ, temporário", validate: (value) => validateRequired(value, "Tipo de vínculo") },
+        { name: "dataAdmissao", label: "Data de admissão", type: "date", validate: validateProductDate },
+        { name: "permissoes", label: "Permissões", placeholder: "admin, estoque, serviços", fullWidth: true },
+        { name: "endereco", label: "Endereço", placeholder: "Informe o endereço", fullWidth: true },
       ],
-      submitLabel: "Salvar funcionario",
-      successMessage: "Funcionario cadastrado com sucesso.",
+      submitLabel: "Salvar funcionário",
+      successMessage: "Funcionário cadastrado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/funcionarios/listar",
       toPayload(values) {
@@ -1396,8 +1396,8 @@ export const moduleConfigs = {
       },
     },
     edit: {
-      heroTitle: "Editar funcionario",
-      alert: "Selecione um funcionario na consulta para abrir a edicao com o registro correto.",
+      heroTitle: "Editar funcionário",
+      alert: "Selecione um funcionário na consulta para abrir a edição com o registro correto.",
       fields: [
         { name: "nome", label: "Nome", placeholder: "Informe o nome", validate: (value) => validateRequired(value, "Nome") },
         { name: "cpf", label: "CPF", placeholder: "000.000.000-00", formatInput: formatCpfCnpj, validate: validateCpf },
@@ -1406,10 +1406,10 @@ export const moduleConfigs = {
         { name: "telefone", label: "Telefone", placeholder: "(00) 00000-0000", formatInput: formatPhone, validate: validatePhone },
         { name: "cargo", label: "Cargo", placeholder: "Informe o cargo", validate: (value) => validateRequired(value, "Cargo") },
         { name: "setor", label: "Setor", placeholder: "Informe o setor", validate: (value) => validateRequired(value, "Setor") },
-        { name: "tipoVinculo", label: "Tipo de vinculo", placeholder: "CLT, PJ, temporario", validate: (value) => validateRequired(value, "Tipo de vinculo") },
-        { name: "dataAdmissao", label: "Data de admissao", type: "date", validate: validateProductDate },
-        { name: "permissoes", label: "Permissoes", placeholder: "admin, estoque, servicos", fullWidth: true, formatInput: (value) => Array.isArray(value) ? value.join(", ") : value },
-        { name: "endereco", label: "Endereco", placeholder: "Informe o endereco", fullWidth: true },
+        { name: "tipoVinculo", label: "Tipo de vínculo", placeholder: "CLT, PJ, temporário", validate: (value) => validateRequired(value, "Tipo de vínculo") },
+        { name: "dataAdmissao", label: "Data de admissão", type: "date", validate: validateProductDate },
+        { name: "permissoes", label: "Permissões", placeholder: "admin, estoque, serviços", fullWidth: true, formatInput: (value) => Array.isArray(value) ? value.join(", ") : value },
+        { name: "endereco", label: "Endereço", placeholder: "Informe o endereço", fullWidth: true },
         {
           name: "status",
           label: "Status",
@@ -1419,8 +1419,8 @@ export const moduleConfigs = {
           formatInput: normalizeClientStatus,
         },
       ],
-      submitLabel: "Salvar alteracoes",
-      successMessage: "Funcionario atualizado com sucesso.",
+      submitLabel: "Salvar alterações",
+      successMessage: "Funcionário atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/funcionarios/listar",
       toPayload(values) {
@@ -1428,16 +1428,16 @@ export const moduleConfigs = {
       },
     },
     deactivate: {
-      heroTitle: "Inativar funcionario",
+      heroTitle: "Inativar funcionário",
       warning:
-        "A inativacao chama o endpoint de desligamento e remove permissoes do funcionario.",
+        "A inativação chama o endpoint de desligamento e remove permissões do funcionário.",
       optionalFields: [
-        { name: "responsavelDesligamento", label: "Responsavel", placeholder: "Responsavel pelo desligamento" },
+        { name: "responsavelDesligamento", label: "Responsável", placeholder: "Responsável pelo desligamento" },
         { name: "motivoDesligamento", label: "Motivo", placeholder: "Motivo do desligamento" },
-        { name: "observacao", label: "Observacao", placeholder: "Observacao interna" },
+        { name: "observacao", label: "Observação", placeholder: "Observação interna" },
       ],
-      actionButtons: [{ label: "Confirmar inativacao", variant: "danger", action: "confirm" }],
-      successMessage: "Funcionario inativado com sucesso.",
+      actionButtons: [{ label: "Confirmar inativação", variant: "danger", action: "confirm" }],
+      successMessage: "Funcionário inativado com sucesso.",
       requestPathSuffix: "/inativar",
       facts(record) {
         if (!record) {
@@ -1445,9 +1445,9 @@ export const moduleConfigs = {
         }
 
         return [
-          { label: "Funcionario", value: record.nome || "Nao informado" },
-          { label: "CPF", value: formatCpfCnpj(record.cpf) || "Nao informado" },
-          { label: "Setor", value: record.setor || "Nao informado" },
+          { label: "Funcionário", value: record.nome || "Não informado" },
+          { label: "CPF", value: formatCpfCnpj(record.cpf) || "Não informado" },
+          { label: "Setor", value: record.setor || "Não informado" },
           { label: "Status atual", value: normalizeClientStatus(record.status) },
         ];
       },
@@ -1455,7 +1455,7 @@ export const moduleConfigs = {
       buildPayload(record, values = {}) {
         return {
           responsavelDesligamento: values.responsavelDesligamento?.trim() || "Sistema",
-          motivoDesligamento: values.motivoDesligamento?.trim() || "Inativacao pelo sistema",
+          motivoDesligamento: values.motivoDesligamento?.trim() || "Inativação pelo sistema",
           observacao: values.observacao?.trim() || "",
         };
       },
@@ -1465,38 +1465,38 @@ export const moduleConfigs = {
     key: "estoque",
     apiResource: "estoque",
     label: "Estoque",
-    singularLabel: "movimentacao",
+    singularLabel: "movimentação",
     basePath: "/estoque",
-    contextLabel: "Movimentacao de estoque",
+    contextLabel: "Movimentação de estoque",
     summary:
-      "Modulo de estoque com entradas, saidas, ajustes, transferencias e reversao de movimentacoes.",
+      "Módulo de estoque com entradas, saídas, ajustes, transferências e reversão de movimentações.",
     routeMeta: {
-      base: { eyebrow: "Modulo", label: "Estoque" },
+      base: { eyebrow: "Módulo", label: "Estoque" },
       list: { eyebrow: "Consulta", label: "Consultar estoque" },
-      create: { eyebrow: "Movimentacao", label: "Nova movimentacao" },
-      edit: { eyebrow: "Edicao", label: "Editar movimentacao" },
-      deactivate: { eyebrow: "Reversao", label: "Remover movimentacao" },
+      create: { eyebrow: "Movimentação", label: "Nova movimentação" },
+      edit: { eyebrow: "Edição", label: "Editar movimentação" },
+      deactivate: { eyebrow: "Reversão", label: "Remover movimentação" },
     },
     actions: [
-      { label: "Menu do modulo", path: "/estoque" },
+      { label: "Menu do módulo", path: "/estoque" },
       { label: "Consultar estoque", path: "/estoque/listar" },
-      { label: "Nova movimentacao", path: "/estoque/novo" },
-      { label: "Editar movimentacao", path: "/estoque/editar" },
-      { label: "Remover movimentacao", path: "/estoque/inativar" },
+      { label: "Nova movimentação", path: "/estoque/novo" },
+      { label: "Editar movimentação", path: "/estoque/editar" },
+      { label: "Remover movimentação", path: "/estoque/inativar" },
     ],
     list: {
-      heroTitle: "Consultar movimentacoes",
-      emptyState: "Nenhuma movimentacao encontrada com os filtros aplicados.",
+      heroTitle: "Consultar movimentações",
+      emptyState: "Nenhuma movimentação encontrada com os filtros aplicados.",
       filters: [
         { name: "produto", label: "Produto", placeholder: "Nome ou ID do produto" },
         {
           name: "tipo",
           label: "Tipo",
           type: "select",
-          options: ["Todos", "Entrada", "Saida", "Ajuste", "Transferencia"],
+          options: ["Todos", "Entrada", "Saída", "Ajuste", "Transferência"],
           defaultValue: "Todos",
         },
-        { name: "responsavel", label: "Responsavel", placeholder: "Filtrar por responsavel" },
+        { name: "responsavel", label: "Responsável", placeholder: "Filtrar por responsável" },
       ],
       columns: [
         {
@@ -1536,8 +1536,8 @@ export const moduleConfigs = {
         );
       },
       detailCard: {
-        title: "Detalhes da movimentacao",
-        tabs: ["Produto", "Movimentacao", "Auditoria"],
+        title: "Detalhes da movimentação",
+        tabs: ["Produto", "Movimentação", "Auditoria"],
         facts(record) {
           if (!record) {
             return [];
@@ -1548,13 +1548,13 @@ export const moduleConfigs = {
             { label: "Fornecedor", value: getReferenceLabel(record.fornecedor, ["razaoSocial", "nomeFantasia"]) },
             { label: "Tipo", value: formatMovementType(record.tipo) },
             { label: "Quantidade", value: String(record.quantidade ?? 0) },
-            { label: "Responsavel", value: record.responsavel || "Nao informado" },
+            { label: "Responsável", value: record.responsavel || "Não informado" },
           ];
         },
       },
     },
     create: {
-      heroTitle: "Registrar movimentacao",
+      heroTitle: "Registrar movimentação",
       sideNotes: [
         "Selecione o produto pelo nome ou codigo cadastrado.",
         "Fornecedor aparece pelo nome fantasia quando for uma entrada de estoque.",
@@ -1568,20 +1568,20 @@ export const moduleConfigs = {
           name: "tipo",
           label: "Tipo",
           type: "select",
-          options: ["Entrada", "Saida"],
+          options: ["Entrada", "Saída"],
           defaultValue: "Entrada",
           formatInput: formatMovementType,
         },
         { name: "quantidade", label: "Quantidade", type: "number", min: 1, placeholder: "1", validate: (value) => validateNonNegativeNumber(value, "Quantidade", { required: true }) },
-        { name: "valorUnitario", label: "Valor unitario", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor unitario") },
+        { name: "valorUnitario", label: "Valor unitário", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor unitário") },
         { name: "localOrigem", label: "Local origem", placeholder: "Geral" },
         { name: "localDestino", label: "Local destino", placeholder: "Geral" },
-        { name: "responsavel", label: "Responsavel", placeholder: "Nome do responsavel" },
-        { name: "motivo", label: "Motivo", placeholder: "Motivo da movimentacao", fullWidth: true },
-        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+        { name: "responsavel", label: "Responsável", placeholder: "Nome do responsável" },
+        { name: "motivo", label: "Motivo", placeholder: "Motivo da movimentação", fullWidth: true },
+        { name: "observacao", label: "Observação", placeholder: "Observação interna", fullWidth: true },
       ],
-      submitLabel: "Salvar movimentacao",
-      successMessage: "Movimentacao cadastrada com sucesso.",
+      submitLabel: "Salvar movimentação",
+      successMessage: "Movimentação cadastrada com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/estoque/listar",
       validateForm: validateStockMovementForm,
@@ -1590,8 +1590,8 @@ export const moduleConfigs = {
       },
     },
     edit: {
-      heroTitle: "Editar movimentacao",
-      alert: "Selecione uma movimentacao na consulta para abrir a edicao com o registro correto.",
+      heroTitle: "Editar movimentação",
+      alert: "Selecione uma movimentação na consulta para abrir a edição com o registro correto.",
       fields: [
         stockProductField((record, values) =>
           ["saida", "transferencia"].includes(normalizeMovementType(values.tipo)) &&
@@ -1602,21 +1602,21 @@ export const moduleConfigs = {
           name: "tipo",
           label: "Tipo",
           type: "select",
-          options: ["Entrada", "Saida", "Ajuste", "Transferencia"],
+          options: ["Entrada", "Saída", "Ajuste", "Transferência"],
           defaultValue: "Entrada",
           formatInput: formatMovementType,
         },
         { name: "quantidade", label: "Quantidade", type: "number", min: 1, placeholder: "1", validate: (value) => validateNonNegativeNumber(value, "Quantidade", { required: true }) },
         { name: "quantidadeNova", label: "Quantidade nova", type: "number", min: 0, placeholder: "0", validate: (value) => validateNonNegativeNumber(value, "Quantidade nova") },
-        { name: "valorUnitario", label: "Valor unitario", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor unitario") },
+        { name: "valorUnitario", label: "Valor unitário", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Valor unitário") },
         { name: "localOrigem", label: "Local origem", placeholder: "Geral" },
         { name: "localDestino", label: "Local destino", placeholder: "Geral" },
-        { name: "responsavel", label: "Responsavel", placeholder: "Nome do responsavel" },
-        { name: "motivo", label: "Motivo", placeholder: "Motivo da movimentacao", fullWidth: true },
-        { name: "observacao", label: "Observacao", placeholder: "Observacao interna", fullWidth: true },
+        { name: "responsavel", label: "Responsável", placeholder: "Nome do responsável" },
+        { name: "motivo", label: "Motivo", placeholder: "Motivo da movimentação", fullWidth: true },
+        { name: "observacao", label: "Observação", placeholder: "Observação interna", fullWidth: true },
       ],
-      submitLabel: "Salvar alteracoes",
-      successMessage: "Movimentacao atualizada com sucesso.",
+      submitLabel: "Salvar alterações",
+      successMessage: "Movimentação atualizada com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/estoque/listar",
       validateForm: validateStockMovementForm,
@@ -1625,15 +1625,15 @@ export const moduleConfigs = {
       },
     },
     deactivate: {
-      heroTitle: "Remover movimentacao",
+      heroTitle: "Remover movimentação",
       warning:
-        "A remocao reverte a movimentacao no estoque antes de excluir o registro.",
+        "A remoção reverte a movimentação no estoque antes de excluir o registro.",
       optionalField: {
-        label: "Observacao da remocao",
-        placeholder: "Registre uma observacao interna antes de remover.",
+        label: "Observação da remoção",
+        placeholder: "Registre uma observação interna antes de remover.",
       },
-      actionButtons: [{ label: "Confirmar remocao", variant: "danger", action: "confirm" }],
-      successMessage: "Movimentacao removida com sucesso.",
+      actionButtons: [{ label: "Confirmar remoção", variant: "danger", action: "confirm" }],
+      successMessage: "Movimentação removida com sucesso.",
       asyncAction: "delete",
       facts(record) {
         if (!record) {
@@ -1652,29 +1652,29 @@ export const moduleConfigs = {
   servicos: {
     key: "servicos",
     apiResource: "servicos",
-    label: "Servicos",
-    singularLabel: "servico",
+    label: "Serviços",
+    singularLabel: "serviço",
     basePath: "/servicos",
-    contextLabel: "Ordem de servico",
+    contextLabel: "Ordem de serviço",
     summary:
-      "Modulo de servicos com agenda, execucao, valores, equipe e cancelamento.",
+      "Módulo de serviços com agenda, execução, valores, equipe e cancelamento.",
     routeMeta: {
-      base: { eyebrow: "Modulo", label: "Servicos" },
-      list: { eyebrow: "Consulta", label: "Consultar servicos" },
-      create: { eyebrow: "Cadastro", label: "Novo servico" },
-      edit: { eyebrow: "Edicao", label: "Editar servico" },
-      deactivate: { eyebrow: "Cancelamento", label: "Cancelar servico" },
+      base: { eyebrow: "Módulo", label: "Serviços" },
+      list: { eyebrow: "Consulta", label: "Consultar serviços" },
+      create: { eyebrow: "Cadastro", label: "Novo serviço" },
+      edit: { eyebrow: "Edição", label: "Editar serviço" },
+      deactivate: { eyebrow: "Cancelamento", label: "Cancelar serviço" },
     },
     actions: [
-      { label: "Menu do modulo", path: "/servicos" },
-      { label: "Consultar servicos", path: "/servicos/listar" },
-      { label: "Novo servico", path: "/servicos/novo" },
-      { label: "Editar servico", path: "/servicos/editar" },
-      { label: "Cancelar servico", path: "/servicos/inativar" },
+      { label: "Menu do módulo", path: "/servicos" },
+      { label: "Consultar serviços", path: "/servicos/listar" },
+      { label: "Novo serviço", path: "/servicos/novo" },
+      { label: "Editar serviço", path: "/servicos/editar" },
+      { label: "Cancelar serviço", path: "/servicos/inativar" },
     ],
     list: {
-      heroTitle: "Consultar servicos",
-      emptyState: "Nenhum servico encontrado com os filtros aplicados.",
+      heroTitle: "Consultar serviços",
+      emptyState: "Nenhum serviço encontrado com os filtros aplicados.",
       filters: [
         { name: "cliente", label: "Cliente", placeholder: "Nome ou ID do cliente" },
         { name: "tipo", label: "Tipo", placeholder: "Filtrar por tipo" },
@@ -1682,7 +1682,7 @@ export const moduleConfigs = {
           name: "status",
           label: "Status",
           type: "select",
-          options: ["Todos", "Agendado", "Em andamento", "Concluido", "Cancelado", "Inativo"],
+          options: ["Todos", "Agendado", "Em andamento", "Concluído", "Cancelado", "Inativo"],
           defaultValue: "Todos",
         },
       ],
@@ -1692,7 +1692,7 @@ export const moduleConfigs = {
           render: (record) => getReferenceLabel(record.cliente, ["nome"]),
           sortValue: (record) => getReferenceLabel(record.cliente, ["nome"]),
         },
-        { label: "Tipo", render: (record) => record.tipo || "Nao informado", sortValue: (record) => record.tipo || "" },
+        { label: "Tipo", render: (record) => record.tipo || "Não informado", sortValue: (record) => record.tipo || "" },
         { label: "Agendamento", render: (record) => formatDate(record.dataAgendamento), sortValue: (record) => record.dataAgendamento || "" },
         { label: "Valor total", render: (record) => formatCurrency(record.valorTotal), sortValue: (record) => Number(record.valorTotal ?? 0) },
         {
@@ -1716,7 +1716,7 @@ export const moduleConfigs = {
         );
       },
       detailCard: {
-        title: "Detalhes do servico",
+        title: "Detalhes do serviço",
         tabs: ["Cliente", "Agenda", "Valores"],
         facts(record) {
           if (!record) {
@@ -1725,26 +1725,26 @@ export const moduleConfigs = {
 
           return [
             { label: "Cliente", value: getReferenceLabel(record.cliente, ["nome"]) },
-            { label: "Tipo", value: record.tipo || "Nao informado" },
+            { label: "Tipo", value: record.tipo || "Não informado" },
             { label: "Agendamento", value: formatDate(record.dataAgendamento) },
-            { label: "Equipe", value: Array.isArray(record.equipe) ? record.equipe.map((item) => getReferenceLabel(item, ["nome"])).join(", ") || "Nao informado" : "Nao informado" },
+            { label: "Equipe", value: Array.isArray(record.equipe) ? record.equipe.map((item) => getReferenceLabel(item, ["nome"])).join(", ") || "Não informado" : "Não informado" },
             { label: "Status", value: formatServiceStatus(record.status) },
           ];
         },
       },
     },
     create: {
-      heroTitle: "Cadastrar servico",
+      heroTitle: "Cadastrar serviço",
       sideNotes: [
         "Selecione cliente, equipe e produtos pelos nomes cadastrados.",
-        "O valor dos produtos e o total sao calculados a partir dos itens usados.",
+        "O valor dos produtos e o total são calculados a partir dos itens usados.",
       ],
       fields: serviceFields({
-        statusOptions: ["Agendado", "Em andamento", "Concluido", "Cancelado"],
-        responsavelPlaceholder: "Responsavel pelo cadastro",
+        statusOptions: ["Agendado", "Em andamento", "Concluído", "Cancelado"],
+        responsavelPlaceholder: "Responsável pelo cadastro",
       }),
-      submitLabel: "Salvar servico",
-      successMessage: "Servico cadastrado com sucesso.",
+      submitLabel: "Salvar serviço",
+      successMessage: "Serviço cadastrado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/servicos/listar",
       validateForm: validateServiceForm,
@@ -1753,15 +1753,15 @@ export const moduleConfigs = {
       },
     },
     edit: {
-      heroTitle: "Editar servico",
-      alert: "Selecione um servico na consulta para abrir a edicao com o registro correto.",
+      heroTitle: "Editar serviço",
+      alert: "Selecione um serviço na consulta para abrir a edição com o registro correto.",
       fields: serviceFields({
         includeCompletionDate: true,
-        statusOptions: ["Agendado", "Em andamento", "Concluido", "Cancelado", "Inativo"],
-        responsavelPlaceholder: "Responsavel pela edicao",
+        statusOptions: ["Agendado", "Em andamento", "Concluído", "Cancelado", "Inativo"],
+        responsavelPlaceholder: "Responsável pela edição",
       }),
-      submitLabel: "Salvar alteracoes",
-      successMessage: "Servico atualizado com sucesso.",
+      submitLabel: "Salvar alterações",
+      successMessage: "Serviço atualizado com sucesso.",
       secondaryLabel: "Voltar para consulta",
       secondaryPath: "/servicos/listar",
       validateForm: validateServiceForm,
@@ -1770,16 +1770,16 @@ export const moduleConfigs = {
       },
     },
     deactivate: {
-      heroTitle: "Cancelar servico",
+      heroTitle: "Cancelar serviço",
       warning:
-        "O cancelamento chama o endpoint de inativacao do servico e devolve produtos utilizados ao estoque.",
+        "O cancelamento chama o endpoint de inativação do serviço e devolve produtos utilizados ao estoque.",
       optionalFields: [
-        { name: "responsavelCancelamento", label: "Responsavel", placeholder: "Responsavel pelo cancelamento" },
+        { name: "responsavelCancelamento", label: "Responsável", placeholder: "Responsável pelo cancelamento" },
         { name: "motivoCancelamento", label: "Motivo", placeholder: "Motivo do cancelamento" },
-        { name: "observacao", label: "Observacao", placeholder: "Observacao interna" },
+        { name: "observacao", label: "Observação", placeholder: "Observação interna" },
       ],
       actionButtons: [{ label: "Confirmar cancelamento", variant: "danger", action: "confirm" }],
-      successMessage: "Servico cancelado com sucesso.",
+      successMessage: "Serviço cancelado com sucesso.",
       requestPathSuffix: "/inativar",
       asyncAction: "update",
       facts(record) {
@@ -1789,7 +1789,7 @@ export const moduleConfigs = {
 
         return [
           { label: "Cliente", value: getReferenceLabel(record.cliente, ["nome"]) },
-          { label: "Tipo", value: record.tipo || "Nao informado" },
+          { label: "Tipo", value: record.tipo || "Não informado" },
           { label: "Status atual", value: formatServiceStatus(record.status) },
           { label: "Agendamento", value: formatDate(record.dataAgendamento) },
         ];

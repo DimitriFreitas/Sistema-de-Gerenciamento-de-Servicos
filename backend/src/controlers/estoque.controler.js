@@ -58,7 +58,7 @@ function validarQuantidade(quantidade) {
 
 function validarQuantidadeNova(quantidadeNova) {
   if (quantidadeNova === undefined || Number.isNaN(quantidadeNova) || quantidadeNova < 0) {
-    throw criarErro("Quantidade nova deve ser um numero maior ou igual a zero.");
+    throw criarErro("Quantidade nova deve ser um número maior ou igual a zero.");
   }
 }
 
@@ -66,7 +66,7 @@ function validarSaldoDisponivel(produto, quantidade) {
   const saldoAtual = Number(produto.quantidadeAtual ?? 0);
 
   if (saldoAtual <= 0) {
-    throw criarErro("Produto sem estoque nao pode ter saida. Registre uma entrada antes.");
+    throw criarErro("Produto sem estoque não pode ter saída. Registre uma entrada antes.");
   }
 
   if (quantidade > saldoAtual) {
@@ -115,7 +115,7 @@ function getSaldoLocal(produto, localizacao) {
 
 function definirSaldoLocal(produto, localizacao, quantidade) {
   if (quantidade < 0) {
-    throw criarErro("Saldo do local nao pode ser negativo.");
+    throw criarErro("Saldo do local não pode ser negativo.");
   }
 
   const localNormalizado = normalizarLocal(localizacao, getLocalPadraoProduto(produto));
@@ -221,7 +221,7 @@ async function aplicarMovimentacao(dados) {
     return aplicarTransferencia(dados);
   }
 
-  throw criarErro("Tipo de movimentacao invalido.");
+  throw criarErro("Tipo de movimentação inválido.");
 }
 
 async function reverterMovimentacao(dados) {
@@ -260,7 +260,7 @@ async function reverterMovimentacao(dados) {
     });
   }
 
-  throw criarErro("Tipo de movimentacao invalido.");
+  throw criarErro("Tipo de movimentação inválido.");
 }
 
 function responderErroMovimentacao(erro, res, fallbackMessage) {
@@ -274,13 +274,13 @@ function responderErroMovimentacao(erro, res, fallbackMessage) {
 
 class EstoqueController {
 
-  // Criar movimentacao de estoque
+  // Criar movimentação de estoque
   async criarMovimentacao(req, res) {
     try {
       const dadosMovimentacao = montarDadosMovimentacao(req.body);
 
       if (dadosMovimentacao.tipo !== "entrada" && dadosMovimentacao.tipo !== "saida") {
-        throw criarErro("Use as rotas especificas para ajuste ou transferencia.");
+        throw criarErro("Use as rotas específicas para ajuste ou transferência.");
       }
 
       const movimentacao = new Estoque(dadosMovimentacao);
@@ -292,7 +292,7 @@ class EstoqueController {
 
       return res.status(201).json(movimentacao);
     } catch (erro) {
-      return responderErroMovimentacao(erro, res, "Erro ao criar movimentacao de estoque");
+      return responderErroMovimentacao(erro, res, "Erro ao criar movimentação de estoque");
     }
   }
 
@@ -365,18 +365,18 @@ class EstoqueController {
     }
   }
 
-  // Listar todas as movimentacoes
+  // Listar todas as movimentações
   async listarMovimentacoes(req, res) {
     try {
       const movimentacoes = await Estoque.find().populate(["produto", "fornecedor"]);
       return res.status(200).json(movimentacoes);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao listar movimentacoes de estoque");
+      const response = getRequestErrorResponse(erro, "Erro ao listar movimentações de estoque");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Buscar movimentacao por ID
+  // Buscar movimentação por ID
   async buscarMovimentacao(req, res) {
     try {
       const { id } = req.params;
@@ -384,24 +384,24 @@ class EstoqueController {
       const movimentacao = await Estoque.findById(id).populate(["produto", "fornecedor"]);
 
       if (!movimentacao) {
-        return res.status(404).json({ erro: "Movimentacao de estoque não encontrada" });
+        return res.status(404).json({ erro: "Movimentação de estoque não encontrada" });
       }
 
       return res.status(200).json(movimentacao);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao buscar movimentacao de estoque");
+      const response = getRequestErrorResponse(erro, "Erro ao buscar movimentação de estoque");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Atualizar movimentacao
+  // Atualizar movimentação
   async atualizarMovimentacao(req, res) {
     try {
       const { id } = req.params;
       const movimentacaoAtual = await Estoque.findById(id);
 
       if (!movimentacaoAtual) {
-        return res.status(404).json({ erro: "Movimentacao de estoque não encontrada" });
+        return res.status(404).json({ erro: "Movimentação de estoque não encontrada" });
       }
 
       const dadosAtuais = montarDadosMovimentacao(movimentacaoAtual.toObject());
@@ -429,11 +429,11 @@ class EstoqueController {
 
       return res.status(200).json(movimentacao);
     } catch (erro) {
-      return responderErroMovimentacao(erro, res, "Erro ao atualizar movimentacao de estoque");
+      return responderErroMovimentacao(erro, res, "Erro ao atualizar movimentação de estoque");
     }
   }
 
-  // Deletar movimentacao
+  // Deletar movimentação
   async deletarMovimentacao(req, res) {
     try {
       const { id } = req.params;
@@ -441,15 +441,15 @@ class EstoqueController {
       const movimentacao = await Estoque.findById(id);
 
       if (!movimentacao) {
-        return res.status(404).json({ erro: "Movimentacao de estoque não encontrada" });
+        return res.status(404).json({ erro: "Movimentação de estoque não encontrada" });
       }
 
       await reverterMovimentacao(montarDadosMovimentacao(movimentacao.toObject()));
       await Estoque.findByIdAndDelete(id);
 
-      return res.status(200).json({ mensagem: "Movimentacao de estoque deletada com sucesso" });
+      return res.status(200).json({ mensagem: "Movimentação de estoque deletada com sucesso" });
     } catch (erro) {
-      return responderErroMovimentacao(erro, res, "Erro ao deletar movimentacao de estoque");
+      return responderErroMovimentacao(erro, res, "Erro ao deletar movimentação de estoque");
     }
   }
 }

@@ -1,6 +1,6 @@
 # Backend
 
-API do Sistema de Gerenciamento de Servicos. Esta pasta concentra o servidor Express, a conexao com MongoDB e os modelos usados pelos modulos de clientes, produtos, fornecedores, funcionarios, estoque e servicos.
+API do Sistema de Gerenciamento de Serviços. Esta pasta concentra o servidor Express, a conexão com MongoDB e os modelos usados pelos módulos de clientes, produtos, fornecedores, funcionários, estoque e serviços.
 
 ## Stack
 
@@ -17,9 +17,9 @@ O backend fornece endpoints HTTP para:
 - criar, listar, buscar, atualizar e remover clientes;
 - criar, listar, buscar, atualizar e remover produtos;
 - criar, listar, buscar, atualizar e remover fornecedores;
-- criar, listar, buscar, atualizar, inativar e remover funcionarios;
-- registrar, listar, buscar, atualizar, ajustar, transferir e remover movimentacoes de estoque;
-- criar, listar, buscar, atualizar, cancelar e remover servicos.
+- criar, listar, buscar, atualizar, inativar e remover funcionários;
+- registrar, listar, buscar, atualizar, ajustar, transferir e remover movimentações de estoque;
+- criar, listar, buscar, atualizar, cancelar e remover serviços.
 
 ## Estrutura
 
@@ -27,7 +27,7 @@ O backend fornece endpoints HTTP para:
 backend/
 ├── src/
 │   ├── config/             # Configuração de banco de dados
-│   ├── controlers/         # Controllers dos modulos
+│   ├── controlers/         # Controllers dos módulos
 │   ├── models/             # Schemas Mongoose
 │   ├── routes/             # Rotas HTTP da API
 │   └── app.js              # Aplicação Express
@@ -94,7 +94,7 @@ http://localhost:3000
 
 ## Endpoints
 
-As rotas REST principais seguem este padrao para `clientes`, `produtos`, `fornecedores`, `funcionarios`, `estoque` e `servicos`:
+As rotas REST principais seguem este padrão para `clientes`, `produtos`, `fornecedores`, `funcionarios`, `estoque` e `servicos`:
 
 ```text
 GET    /<recurso>
@@ -140,7 +140,7 @@ Campos usados pelo módulo:
 
 ### Fornecedor
 
-Campos usados pelo modulo:
+Campos usados pelo módulo:
 
 - `razaoSocial`
 - `nomeFantasia`
@@ -150,9 +150,9 @@ Campos usados pelo modulo:
 - `endereco`
 - `status`
 
-### Funcionario
+### Funcionário
 
-Campos usados pelo modulo:
+Campos usados pelo módulo:
 
 - `nome`
 - `cpf`
@@ -167,7 +167,7 @@ Campos usados pelo modulo:
 
 ### Estoque
 
-Campos usados pelo modulo:
+Campos usados pelo módulo:
 
 - `produto`
 - `fornecedor`
@@ -179,9 +179,9 @@ Campos usados pelo modulo:
 - `responsavel`
 - `motivo`
 
-### Servico
+### Serviço
 
-Campos usados pelo modulo:
+Campos usados pelo módulo:
 
 - `cliente`
 - `tipo`

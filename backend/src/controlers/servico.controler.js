@@ -56,7 +56,7 @@ function getSaldoLocal(produto, localizacao) {
 
 function definirSaldoLocal(produto, localizacao, quantidade) {
   if (quantidade < 0) {
-    throw criarErro("Saldo do local nao pode ser negativo.");
+    throw criarErro("Saldo do local não pode ser negativo.");
   }
 
   const localNormalizado = normalizarLocal(localizacao, getLocalPadraoProduto(produto));
@@ -78,7 +78,7 @@ function alterarSaldoLocal(produto, localizacao, diferenca) {
   const novoSaldo = saldoAtual + diferenca;
 
   if (novoSaldo < 0) {
-    throw criarErro("Estoque insuficiente para o produto utilizado no servico.");
+    throw criarErro("Estoque insuficiente para o produto utilizado no serviço.");
   }
 
   definirSaldoLocal(produto, localizacao, novoSaldo);
@@ -137,7 +137,7 @@ async function aplicarProdutosDoServico(produtosUtilizados = [], servicoId, resp
       const produto = await Produto.findById(item.produto);
 
       if (!produto) {
-        throw criarErro("Produto utilizado no servico nao encontrado.", 404);
+        throw criarErro("Produto utilizado no serviço não encontrado.", 404);
       }
 
       garantirSaldosPorLocal(produto);
@@ -159,8 +159,8 @@ async function aplicarProdutosDoServico(produtosUtilizados = [], servicoId, resp
         valorTotal: Number(item.quantidade) * Number(item.valorUnitario ?? 0),
         localOrigem,
         responsavel,
-        motivo: "Uso em servico",
-        observacao: `Servico ${servicoId}`,
+        motivo: "Uso em serviço",
+        observacao: `Serviço ${servicoId}`,
       });
 
       movimentacoes.push(movimentacao);
@@ -178,7 +178,7 @@ async function devolverProdutosDoServico(produtosUtilizados = [], servicoId, res
     const produto = await Produto.findById(item.produto);
 
     if (!produto) {
-      throw criarErro("Produto utilizado no servico nao encontrado.", 404);
+      throw criarErro("Produto utilizado no serviço não encontrado.", 404);
     }
 
     garantirSaldosPorLocal(produto);
@@ -197,8 +197,8 @@ async function devolverProdutosDoServico(produtosUtilizados = [], servicoId, res
       valorTotal: Number(item.quantidade) * Number(item.valorUnitario ?? 0),
       localDestino,
       responsavel,
-      motivo: "Devolucao de servico",
-      observacao: `Servico ${servicoId}`,
+      motivo: "Devolução de serviço",
+      observacao: `Serviço ${servicoId}`,
     });
   }
 }
@@ -214,7 +214,7 @@ function responderErroServico(erro, res, fallbackMessage) {
 
 class ServicoController {
 
-  // Criar servico
+  // Criar serviço
   async criarServico(req, res) {
     try {
       const dadosServico = montarDadosServico(req.body);
@@ -223,7 +223,7 @@ class ServicoController {
         montarHistoricoStatus(
           dadosServico.status || "agendado",
           req.body.responsavel,
-          "Servico cadastrado"
+          "Serviço cadastrado"
         ),
       ];
 
@@ -247,11 +247,11 @@ class ServicoController {
 
       return res.status(201).json(servicoPopulado);
     } catch (erro) {
-      return responderErroServico(erro, res, "Erro ao criar servico");
+      return responderErroServico(erro, res, "Erro ao criar serviço");
     }
   }
 
-  // Listar todos os servicos
+  // Listar todos os serviços
   async listarServicos(req, res) {
     try {
       const filtros = {};
@@ -287,12 +287,12 @@ class ServicoController {
       const servicos = await Servico.find(filtros).populate(POPULATE_SERVICO);
       return res.status(200).json(servicos);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao listar servicos");
+      const response = getRequestErrorResponse(erro, "Erro ao listar serviços");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Buscar servico por ID
+  // Buscar serviço por ID
   async buscarServico(req, res) {
     try {
       const { id } = req.params;
@@ -300,24 +300,24 @@ class ServicoController {
       const servico = await buscarServicoPopulado(id);
 
       if (!servico) {
-        return res.status(404).json({ erro: "Servico nao encontrado" });
+        return res.status(404).json({ erro: "Serviço não encontrado" });
       }
 
       return res.status(200).json(servico);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao buscar servico");
+      const response = getRequestErrorResponse(erro, "Erro ao buscar serviço");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Atualizar servico
+  // Atualizar serviço
   async atualizarServico(req, res) {
     try {
       const { id } = req.params;
       const servicoAtual = await Servico.findById(id);
 
       if (!servicoAtual) {
-        return res.status(404).json({ erro: "Servico nao encontrado" });
+        return res.status(404).json({ erro: "Serviço não encontrado" });
       }
 
       const dadosServico = montarDadosServico({
@@ -370,11 +370,11 @@ class ServicoController {
 
       return res.status(200).json(servico);
     } catch (erro) {
-      return responderErroServico(erro, res, "Erro ao atualizar servico");
+      return responderErroServico(erro, res, "Erro ao atualizar serviço");
     }
   }
 
-  // Inativar ou cancelar servico
+  // Inativar ou cancelar serviço
   async inativarServico(req, res) {
     try {
       const { id } = req.params;
@@ -386,18 +386,18 @@ class ServicoController {
 
       if (!responsavelCancelamento || !motivoCancelamento) {
         return res.status(400).json({
-          mensagem: "Responsavel e motivo do cancelamento sao obrigatorios.",
+          mensagem: "Responsável e motivo do cancelamento são obrigatórios.",
         });
       }
 
       const servicoAtual = await Servico.findById(id);
 
       if (!servicoAtual) {
-        return res.status(404).json({ erro: "Servico nao encontrado" });
+        return res.status(404).json({ erro: "Serviço não encontrado" });
       }
 
       if (servicoAtual.status === "cancelado" || servicoAtual.status === "inativo") {
-        return res.status(400).json({ mensagem: "Servico ja esta cancelado ou inativo." });
+        return res.status(400).json({ mensagem: "Serviço já está cancelado ou inativo." });
       }
 
       await devolverProdutosDoServico(
@@ -424,26 +424,26 @@ class ServicoController {
 
       return res.status(200).json(servico);
     } catch (erro) {
-      return responderErroServico(erro, res, "Erro ao inativar servico");
+      return responderErroServico(erro, res, "Erro ao inativar serviço");
     }
   }
 
-  // Deletar servico
+  // Deletar serviço
   async deletarServico(req, res) {
     try {
       const { id } = req.params;
       const servico = await Servico.findById(id);
 
       if (!servico) {
-        return res.status(404).json({ erro: "Servico nao encontrado" });
+        return res.status(404).json({ erro: "Serviço não encontrado" });
       }
 
       await devolverProdutosDoServico(servico.produtosUtilizados, servico._id, req.body.responsavel);
       await Servico.findByIdAndDelete(id);
 
-      return res.status(200).json({ mensagem: "Servico deletado com sucesso" });
+      return res.status(200).json({ mensagem: "Serviço deletado com sucesso" });
     } catch (erro) {
-      return responderErroServico(erro, res, "Erro ao deletar servico");
+      return responderErroServico(erro, res, "Erro ao deletar serviço");
     }
   }
 }

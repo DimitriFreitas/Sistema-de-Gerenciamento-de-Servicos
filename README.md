@@ -1,6 +1,6 @@
 # Sistema de Gerenciamento de Serviços
 
-Projeto academico fullstack para gerenciamento de servicos em motores eletricos. A aplicacao permite consultar, cadastrar, editar, inativar ou remover registros pela interface web integrada a uma API Node.js com MongoDB.
+Projeto acadêmico fullstack para gerenciamento de serviços em motores elétricos. A aplicação permite consultar, cadastrar, editar, inativar ou remover registros pela interface web integrada a uma API Node.js com MongoDB.
 
 ## Equipe
 
@@ -15,12 +15,12 @@ O projeto foi desenvolvido em grupo utilizando Scrum, com divisão de entregas p
 
 ## Funcionalidades
 
-- Cadastro, consulta, edicao e inativacao de clientes.
-- Cadastro, consulta, edicao e inativacao de produtos.
-- Cadastro, consulta, edicao e inativacao de fornecedores.
-- Cadastro, consulta, edicao e inativacao de funcionarios.
-- Registro, consulta, edicao e remocao de movimentacoes de estoque.
-- Cadastro, consulta, edicao e cancelamento de servicos.
+- Cadastro, consulta, edição e inativação de clientes.
+- Cadastro, consulta, edição e inativação de produtos.
+- Cadastro, consulta, edição e inativação de fornecedores.
+- Cadastro, consulta, edição e inativação de funcionários.
+- Registro, consulta, edição e remoção de movimentações de estoque.
+- Cadastro, consulta, edição e cancelamento de serviços.
 - Listagens com filtros e ordenação por coluna.
 - Painel lateral de detalhes do registro selecionado.
 - Comunicação entre frontend e backend por API HTTP.
@@ -137,7 +137,7 @@ npm --prefix frontend run dev
 
 ## Rotas da API
 
-As rotas REST principais seguem o mesmo padrao para `clientes`, `produtos`, `fornecedores`, `funcionarios`, `estoque` e `servicos`:
+As rotas REST principais seguem o mesmo padrão para `clientes`, `produtos`, `fornecedores`, `funcionarios`, `estoque` e `servicos`:
 
 - `GET /<recurso>`
 - `GET /<recurso>/:id`
@@ -182,7 +182,7 @@ Rotas especializadas:
 - `/fornecedores/editar`
 - `/fornecedores/inativar`
 
-### Funcionarios
+### Funcionários
 
 - `/funcionarios`
 - `/funcionarios/listar`
@@ -198,7 +198,7 @@ Rotas especializadas:
 - `/estoque/editar`
 - `/estoque/inativar`
 
-### Servicos
+### Serviços
 
 - `/servicos`
 - `/servicos/listar`

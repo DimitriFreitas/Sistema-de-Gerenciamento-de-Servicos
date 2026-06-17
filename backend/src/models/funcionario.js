@@ -12,18 +12,18 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FuncionarioSchema = new mongoose.Schema({
   nome: {
     type: String,
-    required: [true, "Nome e obrigatorio."],
+    required: [true, "Nome é obrigatório."],
     trim: true,
   },
   cpf: {
     type: String,
-    required: [true, "CPF e obrigatorio."],
+    required: [true, "CPF é obrigatório."],
     unique: true,
     trim: true,
     set: formatCpfCnpj,
     validate: {
       validator: (value) => onlyDigits(value).length === 11 && isValidCpfCnpj(value),
-      message: "CPF invalido.",
+      message: "CPF inválido.",
     },
   },
   rg: {
@@ -36,7 +36,7 @@ const FuncionarioSchema = new mongoose.Schema({
     lowercase: true,
     validate: {
       validator: (value) => !value || emailRegex.test(value),
-      message: "Informe um e-mail valido.",
+      message: "Informe um e-mail válido.",
     },
   },
   telefone: {
@@ -45,7 +45,7 @@ const FuncionarioSchema = new mongoose.Schema({
     set: formatPhone,
     validate: {
       validator: isValidPhone,
-      message: "Informe um telefone com DDD e 10 ou 11 digitos.",
+      message: "Informe um telefone com DDD e 10 ou 11 dígitos.",
     },
   },
   endereco: {
@@ -54,17 +54,17 @@ const FuncionarioSchema = new mongoose.Schema({
   },
   cargo: {
     type: String,
-    required: [true, "Cargo e obrigatorio."],
+    required: [true, "Cargo é obrigatório."],
     trim: true,
   },
   setor: {
     type: String,
-    required: [true, "Setor e obrigatorio."],
+    required: [true, "Setor é obrigatório."],
     trim: true,
   },
   tipoVinculo: {
     type: String,
-    required: [true, "Tipo de vinculo e obrigatorio."],
+    required: [true, "Tipo de vínculo é obrigatório."],
     trim: true,
   },
   permissoes: [{

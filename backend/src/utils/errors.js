@@ -13,14 +13,14 @@ export function getRequestErrorResponse(error, fallbackMessage) {
   if (error.name === "CastError") {
     return {
       status: 400,
-      body: { mensagem: "Identificador informado e invalido." },
+      body: { mensagem: "Identificador informado é inválido." },
     };
   }
 
   if (error.code === 11000) {
     return {
       status: 400,
-      body: { mensagem: "Ja existe um registro com esses dados." },
+      body: { mensagem: "Já existe um registro com esses dados." },
     };
   }
 

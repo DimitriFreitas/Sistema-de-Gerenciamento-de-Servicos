@@ -29,7 +29,7 @@ export async function request(resource, options = {}, id = "") {
 
   if (!response.ok) {
     throw new Error(
-      data?.mensagem || data?.erro || "Nao foi possivel concluir a requisicao."
+      data?.mensagem || data?.erro || "Não foi possível concluir a requisição."
     );
   }
 

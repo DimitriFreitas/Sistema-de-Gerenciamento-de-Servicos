@@ -26,18 +26,18 @@ function montarFiltrosFuncionario(query) {
 
 class FuncionarioController {
 
-  // Criar funcionario
+  // Criar funcionário
   async criarFuncionario(req, res) {
     try {
       const funcionario = await Funcionario.create(req.body);
       return res.status(201).json(funcionario);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao criar funcionario");
+      const response = getRequestErrorResponse(erro, "Erro ao criar funcionário");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Listar todos os funcionarios
+  // Listar todos os funcionários
   async listarFuncionarios(req, res) {
     try {
       const filtros = montarFiltrosFuncionario(req.query);
@@ -45,12 +45,12 @@ class FuncionarioController {
 
       return res.status(200).json(funcionarios);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao listar funcionarios");
+      const response = getRequestErrorResponse(erro, "Erro ao listar funcionários");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Buscar funcionario por ID
+  // Buscar funcionário por ID
   async buscarFuncionario(req, res) {
     try {
       const { id } = req.params;
@@ -58,17 +58,17 @@ class FuncionarioController {
       const funcionario = await Funcionario.findById(id);
 
       if (!funcionario) {
-        return res.status(404).json({ erro: "Funcionario nao encontrado" });
+        return res.status(404).json({ erro: "Funcionário não encontrado" });
       }
 
       return res.status(200).json(funcionario);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao buscar funcionario");
+      const response = getRequestErrorResponse(erro, "Erro ao buscar funcionário");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Atualizar funcionario
+  // Atualizar funcionário
   async atualizarFuncionario(req, res) {
     try {
       const { id } = req.params;
@@ -80,17 +80,17 @@ class FuncionarioController {
       );
 
       if (!funcionario) {
-        return res.status(404).json({ erro: "Funcionario nao encontrado" });
+        return res.status(404).json({ erro: "Funcionário não encontrado" });
       }
 
       return res.status(200).json(funcionario);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao atualizar funcionario");
+      const response = getRequestErrorResponse(erro, "Erro ao atualizar funcionário");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Inativar funcionario
+  // Inativar funcionário
   async inativarFuncionario(req, res) {
     try {
       const { id } = req.params;
@@ -102,7 +102,7 @@ class FuncionarioController {
 
       if (!responsavelDesligamento || !motivoDesligamento) {
         return res.status(400).json({
-          mensagem: "Responsavel e motivo do desligamento sao obrigatorios.",
+          mensagem: "Responsável e motivo do desligamento são obrigatórios.",
         });
       }
 
@@ -120,17 +120,17 @@ class FuncionarioController {
       );
 
       if (!funcionario) {
-        return res.status(404).json({ erro: "Funcionario nao encontrado" });
+        return res.status(404).json({ erro: "Funcionário não encontrado" });
       }
 
       return res.status(200).json(funcionario);
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao inativar funcionario");
+      const response = getRequestErrorResponse(erro, "Erro ao inativar funcionário");
       return res.status(response.status).json(response.body);
     }
   }
 
-  // Deletar funcionario
+  // Deletar funcionário
   async deletarFuncionario(req, res) {
     try {
       const { id } = req.params;
@@ -138,12 +138,12 @@ class FuncionarioController {
       const funcionario = await Funcionario.findByIdAndDelete(id);
 
       if (!funcionario) {
-        return res.status(404).json({ erro: "Funcionario nao encontrado" });
+        return res.status(404).json({ erro: "Funcionário não encontrado" });
       }
 
-      return res.status(200).json({ mensagem: "Funcionario deletado com sucesso" });
+      return res.status(200).json({ mensagem: "Funcionário deletado com sucesso" });
     } catch (erro) {
-      const response = getRequestErrorResponse(erro, "Erro ao deletar funcionario");
+      const response = getRequestErrorResponse(erro, "Erro ao deletar funcionário");
       return res.status(response.status).json(response.body);
     }
   }
