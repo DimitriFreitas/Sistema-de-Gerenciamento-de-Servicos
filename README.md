@@ -1,6 +1,6 @@
 # Sistema de Gerenciamento de Serviços
 
-Projeto acadêmico fullstack para gerenciamento de clientes e produtos em um contexto de serviços em motores elétricos. A aplicação permite consultar, cadastrar, editar e inativar registros pela interface web integrada a uma API Node.js com MongoDB.
+Projeto academico fullstack para gerenciamento de servicos em motores eletricos. A aplicacao permite consultar, cadastrar, editar, inativar ou remover registros pela interface web integrada a uma API Node.js com MongoDB.
 
 ## Equipe
 
@@ -15,8 +15,12 @@ O projeto foi desenvolvido em grupo utilizando Scrum, com divisão de entregas p
 
 ## Funcionalidades
 
-- Cadastro, consulta, edição e inativação de clientes.
-- Cadastro, consulta, edição e inativação de produtos.
+- Cadastro, consulta, edicao e inativacao de clientes.
+- Cadastro, consulta, edicao e inativacao de produtos.
+- Cadastro, consulta, edicao e inativacao de fornecedores.
+- Cadastro, consulta, edicao e inativacao de funcionarios.
+- Registro, consulta, edicao e remocao de movimentacoes de estoque.
+- Cadastro, consulta, edicao e cancelamento de servicos.
 - Listagens com filtros e ordenação por coluna.
 - Painel lateral de detalhes do registro selecionado.
 - Comunicação entre frontend e backend por API HTTP.
@@ -133,21 +137,20 @@ npm --prefix frontend run dev
 
 ## Rotas da API
 
-### Clientes
+As rotas REST principais seguem o mesmo padrao para `clientes`, `produtos`, `fornecedores`, `funcionarios`, `estoque` e `servicos`:
 
-- `GET /clientes`
-- `GET /clientes/:id`
-- `POST /clientes`
-- `PUT /clientes/:id`
-- `DELETE /clientes/:id`
+- `GET /<recurso>`
+- `GET /<recurso>/:id`
+- `POST /<recurso>`
+- `PUT /<recurso>/:id`
+- `DELETE /<recurso>/:id`
 
-### Produtos
+Rotas especializadas:
 
-- `GET /produtos`
-- `GET /produtos/:id`
-- `POST /produtos`
-- `PUT /produtos/:id`
-- `DELETE /produtos/:id`
+- `PUT /funcionarios/:id/inativar`
+- `POST /estoque/ajuste`
+- `POST /estoque/transferencia`
+- `PUT /servicos/:id/inativar`
 
 ## Rotas do frontend
 
@@ -170,6 +173,38 @@ npm --prefix frontend run dev
 - `/produtos/novo`
 - `/produtos/editar`
 - `/produtos/inativar`
+
+### Fornecedores
+
+- `/fornecedores`
+- `/fornecedores/listar`
+- `/fornecedores/novo`
+- `/fornecedores/editar`
+- `/fornecedores/inativar`
+
+### Funcionarios
+
+- `/funcionarios`
+- `/funcionarios/listar`
+- `/funcionarios/novo`
+- `/funcionarios/editar`
+- `/funcionarios/inativar`
+
+### Estoque
+
+- `/estoque`
+- `/estoque/listar`
+- `/estoque/novo`
+- `/estoque/editar`
+- `/estoque/inativar`
+
+### Servicos
+
+- `/servicos`
+- `/servicos/listar`
+- `/servicos/novo`
+- `/servicos/editar`
+- `/servicos/inativar`
 
 ## Documentação por módulo
 

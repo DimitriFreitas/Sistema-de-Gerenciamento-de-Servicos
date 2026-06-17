@@ -1,6 +1,6 @@
 # Frontend
 
-Interface web do Sistema de Gerenciamento de Serviços. Esta pasta concentra a aplicação React responsável pelos módulos de clientes e produtos.
+Interface web do Sistema de Gerenciamento de Servicos. Esta pasta concentra a aplicacao React responsavel pelos modulos de clientes, produtos, fornecedores, funcionarios, estoque e servicos.
 
 ## Stack
 
@@ -15,14 +15,15 @@ Interface web do Sistema de Gerenciamento de Serviços. Esta pasta concentra a a
 O frontend oferece uma interface navegável para:
 
 - abrir o painel inicial do sistema;
-- acessar os módulos de clientes e produtos;
+- acessar os modulos de clientes, produtos, fornecedores, funcionarios, estoque e servicos;
 - consultar registros vindos do backend;
 - filtrar e ordenar listagens;
 - visualizar detalhes do item selecionado;
-- cadastrar novos clientes e produtos;
+- cadastrar novos registros;
 - editar registros existentes;
-- inativar clientes;
-- inativar produtos sem remover o cadastro do banco.
+- inativar clientes, produtos, fornecedores e funcionarios;
+- registrar e remover movimentacoes de estoque;
+- cadastrar, editar e cancelar servicos.
 
 ## Estrutura
 
@@ -31,8 +32,8 @@ frontend/
 ├── public/                 # Arquivos estáticos servidos pelo Vite
 ├── src/
 │   ├── components/         # Componentes reutilizáveis e telas CRUD genéricas
-│   ├── config/             # Metadados de navegação
-│   ├── data/               # Configuração dos módulos de clientes e produtos
+│   ├── config/             # Metadados de navegacao
+│   ├── data/               # Configuracao dos modulos
 │   ├── layouts/            # Estrutura principal da aplicação
 │   ├── lib/                # Cliente HTTP, formatadores e validações auxiliares
 │   ├── pages/              # Página inicial
@@ -56,7 +57,7 @@ frontend/
 
 ## Organização dos módulos
 
-O arquivo `src/data/moduleConfigs.js` centraliza o comportamento visual e funcional de clientes e produtos:
+O arquivo `src/data/moduleConfigs.js` centraliza o comportamento visual e funcional dos modulos:
 
 - textos de navegação;
 - caminhos das rotas;
@@ -106,25 +107,13 @@ VITE_API_BASE_URL=http://localhost:3000
 
 ## Rotas
 
-### Início
-
 - `/`
-
-### Clientes
-
-- `/clientes`
-- `/clientes/listar`
-- `/clientes/novo`
-- `/clientes/editar`
-- `/clientes/inativar`
-
-### Produtos
-
-- `/produtos`
-- `/produtos/listar`
-- `/produtos/novo`
-- `/produtos/editar`
-- `/produtos/inativar`
+- `/clientes`, `/clientes/listar`, `/clientes/novo`, `/clientes/editar`, `/clientes/inativar`
+- `/produtos`, `/produtos/listar`, `/produtos/novo`, `/produtos/editar`, `/produtos/inativar`
+- `/fornecedores`, `/fornecedores/listar`, `/fornecedores/novo`, `/fornecedores/editar`, `/fornecedores/inativar`
+- `/funcionarios`, `/funcionarios/listar`, `/funcionarios/novo`, `/funcionarios/editar`, `/funcionarios/inativar`
+- `/estoque`, `/estoque/listar`, `/estoque/novo`, `/estoque/editar`, `/estoque/inativar`
+- `/servicos`, `/servicos/listar`, `/servicos/novo`, `/servicos/editar`, `/servicos/inativar`
 
 Rotas desconhecidas redirecionam para `/`.
 
