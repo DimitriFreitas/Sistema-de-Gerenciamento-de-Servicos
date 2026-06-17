@@ -188,6 +188,8 @@ Campos usados pelo módulo:
 - `descricao`
 - `dataAgendamento`
 - `equipe`
+- `responsavelAtual`
+- `historicoResponsaveis`
 - `produtosUtilizados`
 - `valorMaoDeObra`
 - `valorTotal`

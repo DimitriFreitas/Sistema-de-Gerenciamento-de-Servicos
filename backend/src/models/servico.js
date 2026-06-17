@@ -47,6 +47,32 @@ const HistoricoStatusSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const HistoricoResponsavelSchema = new mongoose.Schema(
+  {
+    funcionario: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Funcionario",
+      required: [true, "Funcionário responsável é obrigatório."],
+    },
+    dataInicio: {
+      type: Date,
+      default: Date.now,
+    },
+    dataFim: {
+      type: Date,
+    },
+    motivo: {
+      type: String,
+      trim: true,
+    },
+    observacao: {
+      type: String,
+      trim: true,
+    },
+  },
+  { _id: false }
+);
+
 const ServicoSchema = new mongoose.Schema({
   cliente: {
     type: mongoose.Schema.Types.ObjectId,
@@ -78,6 +104,11 @@ const ServicoSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Funcionario",
   }],
+  responsavelAtual: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Funcionario",
+  },
+  historicoResponsaveis: [HistoricoResponsavelSchema],
   produtosUtilizados: [ProdutoServicoSchema],
   valorMaoDeObra: {
     type: Number,

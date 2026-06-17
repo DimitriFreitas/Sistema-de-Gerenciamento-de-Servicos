@@ -115,6 +115,22 @@ function getReferenceLabel(reference, fields) {
   return reference;
 }
 
+function getReferenceSearchText(reference, fields) {
+  if (!reference) {
+    return "";
+  }
+
+  if (typeof reference === "object") {
+    return [
+      getRecordLabel(reference, fields),
+      reference._id,
+      reference.id,
+    ].filter(Boolean).join(" ");
+  }
+
+  return String(reference);
+}
+
 function getAvailableStock(product) {
   return Number(product?.quantidadeAtual ?? 0);
 }
@@ -344,6 +360,7 @@ function buildServicePayload(values) {
     dataConclusao: values.dataConclusao || undefined,
     garantiaAte: values.garantiaAte || undefined,
     equipe: Array.isArray(values.equipe) ? values.equipe.map(toId).filter(Boolean) : parseList(values.equipe),
+    responsavelAtual: toId(values.responsavelAtual),
     produtosUtilizados,
     valorMaoDeObra,
     valorProdutos,
@@ -577,6 +594,19 @@ function serviceTeamField() {
   };
 }
 
+function serviceResponsibleField() {
+  return {
+    name: "responsavelAtual",
+    label: "Responsável atual",
+    type: "reference",
+    resource: "funcionarios",
+    placeholder: "Selecione o funcionário responsável",
+    optionLabel: (record) => record.nome,
+    optionMeta: (record) => [record.cargo, record.setor].filter(Boolean).join(" - "),
+    formatInput: toId,
+  };
+}
+
 function serviceProductsField() {
   return {
     name: "produtosUtilizados",
@@ -603,6 +633,7 @@ function serviceFields({ includeCompletionDate = false, statusOptions, responsav
       : []),
     { name: "garantiaAte", label: "Garantia até", type: "date", validate: validateProductDate },
     serviceTeamField(),
+    serviceResponsibleField(),
     serviceProductsField(),
     { name: "valorMaoDeObra", label: "Mão de obra", type: "number", min: 0, step: "0.01", placeholder: "0.00", validate: (value) => validateNonNegativeNumber(value, "Mão de obra") },
     {
@@ -1678,6 +1709,7 @@ export const moduleConfigs = {
       filters: [
         { name: "cliente", label: "Cliente", placeholder: "Nome ou ID do cliente" },
         { name: "tipo", label: "Tipo", placeholder: "Filtrar por tipo" },
+        { name: "responsavelAtual", label: "Funcionário responsável", placeholder: "Nome ou ID do responsável" },
         {
           name: "status",
           label: "Status",
@@ -1706,12 +1738,14 @@ export const moduleConfigs = {
         },
       ],
       matchesFilters(record, filters) {
-        const cliente = getReferenceLabel(record.cliente, ["nome"]);
+        const cliente = getReferenceSearchText(record.cliente, ["nome"]);
+        const responsavelAtual = getReferenceSearchText(record.responsavelAtual, ["nome"]);
         const status = formatServiceStatus(record.status);
 
         return (
           normalizeText(cliente).includes(normalizeText(filters.cliente)) &&
           normalizeText(record.tipo).includes(normalizeText(filters.tipo)) &&
+          normalizeText(responsavelAtual).includes(normalizeText(filters.responsavelAtual)) &&
           (filters.status === "Todos" || status === filters.status)
         );
       },
@@ -1728,6 +1762,7 @@ export const moduleConfigs = {
             { label: "Tipo", value: record.tipo || "Não informado" },
             { label: "Agendamento", value: formatDate(record.dataAgendamento) },
             { label: "Equipe", value: Array.isArray(record.equipe) ? record.equipe.map((item) => getReferenceLabel(item, ["nome"])).join(", ") || "Não informado" : "Não informado" },
+            { label: "Responsável atual", value: getReferenceLabel(record.responsavelAtual, ["nome"]) },
             { label: "Status", value: formatServiceStatus(record.status) },
           ];
         },

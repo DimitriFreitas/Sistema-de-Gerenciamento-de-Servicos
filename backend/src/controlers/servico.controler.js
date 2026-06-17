@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import Estoque from "../models/estoque.js";
+import Funcionario from "../models/funcionario.js";
 import Produto from "../models/produto.js";
 import Servico from "../models/servico.js";
 import { getRequestErrorResponse } from "../utils/errors.js";
@@ -7,6 +9,8 @@ const LOCAL_PADRAO = "Geral";
 const POPULATE_SERVICO = [
   "cliente",
   "equipe",
+  "responsavelAtual",
+  "historicoResponsaveis.funcionario",
   "produtosUtilizados.produto",
 ];
 
@@ -91,6 +95,47 @@ function sincronizarQuantidadeAtual(produto) {
   );
 }
 
+function getObjectIdValido(valor) {
+  const candidato = valor && typeof valor === "object" ? valor._id || valor.id : valor;
+
+  if (!candidato || !mongoose.isValidObjectId(candidato)) {
+    return undefined;
+  }
+
+  return candidato;
+}
+
+function getFuncionarioResponsavel(dados = {}) {
+  return (
+    getObjectIdValido(dados.responsavelAtual) ||
+    getObjectIdValido(dados.responsavelFuncionario) ||
+    getObjectIdValido(dados.funcionarioResponsavel) ||
+    getObjectIdValido(dados.responsavel)
+  );
+}
+
+async function buscarIdsFuncionariosPorTermo(termo) {
+  const texto = String(termo ?? "").trim();
+
+  if (!texto) {
+    return [];
+  }
+
+  const ids = [];
+
+  if (mongoose.isValidObjectId(texto)) {
+    ids.push(texto);
+  }
+
+  const funcionarios = await Funcionario.find({
+    nome: { $regex: texto, $options: "i" },
+  }).select("_id");
+
+  funcionarios.forEach((funcionario) => ids.push(String(funcionario._id)));
+
+  return [...new Set(ids)];
+}
+
 function montarHistoricoStatus(status, responsavel, observacao) {
   return {
     status,
@@ -98,6 +143,48 @@ function montarHistoricoStatus(status, responsavel, observacao) {
     observacao,
     data: new Date(),
   };
+}
+
+function montarHistoricoResponsavel(funcionario, motivo, observacao, dataInicio = new Date()) {
+  return {
+    funcionario,
+    dataInicio,
+    motivo,
+    observacao,
+  };
+}
+
+function normalizarHistoricoResponsaveis(historico = []) {
+  return (Array.isArray(historico) ? historico : []).map((item) =>
+    typeof item.toObject === "function" ? item.toObject() : item
+  );
+}
+
+function atualizarHistoricoResponsaveis(historicoAtual, responsavelAnterior, novoResponsavel, motivo, observacao) {
+  if (!novoResponsavel) {
+    return normalizarHistoricoResponsaveis(historicoAtual);
+  }
+
+  const responsavelAnteriorId = getObjectIdValido(responsavelAnterior);
+
+  if (responsavelAnteriorId && String(responsavelAnteriorId) === String(novoResponsavel)) {
+    return normalizarHistoricoResponsaveis(historicoAtual);
+  }
+
+  const agora = new Date();
+  const historico = normalizarHistoricoResponsaveis(historicoAtual).map((item) => {
+    const funcionario = getObjectIdValido(item.funcionario);
+
+    if (responsavelAnteriorId && funcionario && String(funcionario) === String(responsavelAnteriorId) && !item.dataFim) {
+      return { ...item, dataFim: agora };
+    }
+
+    return item;
+  });
+
+  historico.push(montarHistoricoResponsavel(novoResponsavel, motivo, observacao, agora));
+
+  return historico;
 }
 
 function calcularValorProdutos(produtosUtilizados = []) {
@@ -108,6 +195,7 @@ function calcularValorProdutos(produtosUtilizados = []) {
 }
 
 function montarDadosServico(dados) {
+  const responsavelAtual = getFuncionarioResponsavel(dados);
   const valorProdutos = dados.valorProdutos !== undefined
     ? Number(dados.valorProdutos)
     : calcularValorProdutos(dados.produtosUtilizados);
@@ -118,6 +206,7 @@ function montarDadosServico(dados) {
 
   return {
     ...dados,
+    ...(responsavelAtual ? { responsavelAtual } : {}),
     valorProdutos,
     valorMaoDeObra,
     valorTotal,
@@ -219,6 +308,16 @@ class ServicoController {
     try {
       const dadosServico = montarDadosServico(req.body);
 
+      if (dadosServico.responsavelAtual && !dadosServico.historicoResponsaveis?.length) {
+        dadosServico.historicoResponsaveis = [
+          montarHistoricoResponsavel(
+            dadosServico.responsavelAtual,
+            "Cadastro do serviço",
+            req.body.observacaoResponsavel
+          ),
+        ];
+      }
+
       dadosServico.historicoStatus = [
         montarHistoricoStatus(
           dadosServico.status || "agendado",
@@ -268,8 +367,15 @@ class ServicoController {
         filtros.tipo = { $regex: req.query.tipo, $options: "i" };
       }
 
-      if (req.query.equipe) {
-        filtros.equipe = req.query.equipe;
+      const filtroResponsavel =
+        req.query.responsavelAtual ||
+        req.query.funcionarioResponsavel ||
+        req.query.responsavel;
+
+      if (filtroResponsavel) {
+        filtros.responsavelAtual = {
+          $in: await buscarIdsFuncionariosPorTermo(filtroResponsavel),
+        };
       }
 
       if (req.query.dataInicio || req.query.dataFim) {
@@ -332,6 +438,16 @@ class ServicoController {
           ...servicoAtual.historicoStatus,
           montarHistoricoStatus(req.body.status, req.body.responsavel, req.body.observacaoStatus),
         ];
+      }
+
+      if (dadosServico.responsavelAtual) {
+        dadosServico.historicoResponsaveis = atualizarHistoricoResponsaveis(
+          servicoAtual.historicoResponsaveis,
+          servicoAtual.responsavelAtual,
+          dadosServico.responsavelAtual,
+          "Alteração do responsável",
+          req.body.observacaoResponsavel
+        );
       }
 
       const servicoValidado = new Servico(dadosServico);
