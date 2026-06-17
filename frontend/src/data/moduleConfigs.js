@@ -1701,7 +1701,7 @@ export const moduleConfigs = {
       { label: "Consultar serviços", path: "/servicos/listar" },
       { label: "Novo serviço", path: "/servicos/novo" },
       { label: "Editar serviço", path: "/servicos/editar" },
-      { label: "Cancelar serviço", path: "/servicos/inativar" },
+      { label: "Inativar serviço", path: "/servicos/inativar" },
     ],
     list: {
       heroTitle: "Consultar serviços",

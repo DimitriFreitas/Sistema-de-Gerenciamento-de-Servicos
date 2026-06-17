@@ -17,6 +17,10 @@ function getComparableValue(column, record) {
     .toLowerCase();
 }
 
+function isRequestAbort(error) {
+  return error?.name === "AbortError" || String(error?.message ?? "").includes("NS_BINDING_ABORTED");
+}
+
 function CrudListPage({ moduleConfig }) {
   const detail = moduleConfig.list.detailCard;
   const navigate = useNavigate();
@@ -42,13 +46,19 @@ function CrudListPage({ moduleConfig }) {
   const feedback = location.state?.feedback ?? null;
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadRecords() {
       try {
         setRequestState({ status: "loading", error: "" });
-        const data = await api.list(moduleConfig.apiResource);
+        const data = await api.list(moduleConfig.apiResource, {}, { signal: controller.signal });
         setRecords(Array.isArray(data) ? data : []);
         setRequestState({ status: "success", error: "" });
       } catch (error) {
+        if (isRequestAbort(error)) {
+          return;
+        }
+
         setRequestState({
           status: "error",
           error: error.message,
@@ -57,6 +67,8 @@ function CrudListPage({ moduleConfig }) {
     }
 
     loadRecords();
+
+    return () => controller.abort();
   }, [moduleConfig.apiResource]);
 
   useEffect(() => {

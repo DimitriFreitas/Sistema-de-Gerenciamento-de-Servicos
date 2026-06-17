@@ -46,6 +46,10 @@ async function parseResponse(response) {
   return response.json();
 }
 
+function isAbortError(error) {
+  return error?.name === "AbortError" || String(error?.message ?? "").includes("NS_BINDING_ABORTED");
+}
+
 export async function request(resource, options = {}, id = "") {
   const { headers = {}, params, ...fetchOptions } = options;
   const hasBody = fetchOptions.body !== undefined;
@@ -61,7 +65,11 @@ export async function request(resource, options = {}, id = "") {
       ...fetchOptions,
       ...(Object.keys(requestHeaders).length ? { headers: requestHeaders } : {}),
     });
-  } catch {
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
+
     throw new Error(NETWORK_ERROR_MESSAGE);
   }
 
@@ -84,8 +92,8 @@ export async function request(resource, options = {}, id = "") {
 }
 
 export const api = {
-  list(resource, params = {}) {
-    return request(resource, { params });
+  list(resource, params = {}, options = {}) {
+    return request(resource, { ...options, params });
   },
   create(resource, payload) {
     return request(resource, {
