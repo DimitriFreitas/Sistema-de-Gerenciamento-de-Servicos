@@ -42,13 +42,24 @@ function CrudListPage({ moduleConfig }) {
   const feedback = location.state?.feedback ?? null;
 
   useEffect(() => {
+    let shouldIgnoreResult = false;
+
     async function loadRecords() {
       try {
         setRequestState({ status: "loading", error: "" });
         const data = await api.list(moduleConfig.apiResource);
+
+        if (shouldIgnoreResult) {
+          return;
+        }
+
         setRecords(Array.isArray(data) ? data : []);
         setRequestState({ status: "success", error: "" });
       } catch (error) {
+        if (shouldIgnoreResult) {
+          return;
+        }
+
         setRequestState({
           status: "error",
           error: error.message,
@@ -57,6 +68,10 @@ function CrudListPage({ moduleConfig }) {
     }
 
     loadRecords();
+
+    return () => {
+      shouldIgnoreResult = true;
+    };
   }, [moduleConfig.apiResource]);
 
   useEffect(() => {
@@ -200,6 +215,7 @@ function CrudListPage({ moduleConfig }) {
                     event.preventDefault();
                   }
                 }}
+                state={selectedRecord ? { record: selectedRecord } : undefined}
                 to={buildRecordPath(moduleConfig.actions[3].path)}
               >
                 {moduleConfig.actions[3].label}
@@ -261,7 +277,7 @@ function CrudListPage({ moduleConfig }) {
                       </button>
                     </th>
                   ))}
-                  <th>Acoes</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -289,6 +305,7 @@ function CrudListPage({ moduleConfig }) {
                         <Link
                           className="table-link"
                           onClick={handleActionClick}
+                          state={{ record }}
                           to={`${moduleConfig.actions[3].path}?id=${record._id}`}
                         >
                           Editar

@@ -1,6 +1,6 @@
 # Sistema de Gerenciamento de Serviços
 
-Projeto acadêmico fullstack para gerenciamento de clientes e produtos em um contexto de serviços em motores elétricos. A aplicação permite consultar, cadastrar, editar e inativar registros pela interface web integrada a uma API Node.js com MongoDB.
+Projeto acadêmico fullstack para gerenciamento de serviços em motores elétricos. A aplicação permite consultar, cadastrar, editar, inativar ou remover registros pela interface web integrada a uma API Node.js com MongoDB.
 
 ## Equipe
 
@@ -17,6 +17,10 @@ O projeto foi desenvolvido em grupo utilizando Scrum, com divisão de entregas p
 
 - Cadastro, consulta, edição e inativação de clientes.
 - Cadastro, consulta, edição e inativação de produtos.
+- Cadastro, consulta, edição e inativação de fornecedores.
+- Cadastro, consulta, edição e inativação de funcionários.
+- Registro, consulta, edição e remoção de movimentações de estoque.
+- Cadastro, consulta, edição e cancelamento de serviços.
 - Listagens com filtros e ordenação por coluna.
 - Painel lateral de detalhes do registro selecionado.
 - Comunicação entre frontend e backend por API HTTP.
@@ -133,21 +137,20 @@ npm --prefix frontend run dev
 
 ## Rotas da API
 
-### Clientes
+As rotas REST principais seguem o mesmo padrão para `clientes`, `produtos`, `fornecedores`, `funcionarios`, `estoque` e `servicos`:
 
-- `GET /clientes`
-- `GET /clientes/:id`
-- `POST /clientes`
-- `PUT /clientes/:id`
-- `DELETE /clientes/:id`
+- `GET /<recurso>`
+- `GET /<recurso>/:id`
+- `POST /<recurso>`
+- `PUT /<recurso>/:id`
+- `DELETE /<recurso>/:id`
 
-### Produtos
+Rotas especializadas:
 
-- `GET /produtos`
-- `GET /produtos/:id`
-- `POST /produtos`
-- `PUT /produtos/:id`
-- `DELETE /produtos/:id`
+- `PUT /funcionarios/:id/inativar`
+- `POST /estoque/ajuste`
+- `POST /estoque/transferencia`
+- `PUT /servicos/:id/inativar`
 
 ## Rotas do frontend
 
@@ -170,6 +173,38 @@ npm --prefix frontend run dev
 - `/produtos/novo`
 - `/produtos/editar`
 - `/produtos/inativar`
+
+### Fornecedores
+
+- `/fornecedores`
+- `/fornecedores/listar`
+- `/fornecedores/novo`
+- `/fornecedores/editar`
+- `/fornecedores/inativar`
+
+### Funcionários
+
+- `/funcionarios`
+- `/funcionarios/listar`
+- `/funcionarios/novo`
+- `/funcionarios/editar`
+- `/funcionarios/inativar`
+
+### Estoque
+
+- `/estoque`
+- `/estoque/listar`
+- `/estoque/novo`
+- `/estoque/editar`
+- `/estoque/inativar`
+
+### Serviços
+
+- `/servicos`
+- `/servicos/listar`
+- `/servicos/novo`
+- `/servicos/editar`
+- `/servicos/inativar`
 
 ## Documentação por módulo
 
