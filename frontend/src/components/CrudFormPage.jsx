@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getInitialFormValues } from "../data/moduleConfigs";
 import { api } from "../lib/api";
 import ModuleActionNav from "./ModuleActionNav";
@@ -285,13 +285,15 @@ function validateFields(fields, values) {
 function CrudFormPage({ moduleConfig, mode }) {
   const config = moduleConfig[mode];
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const recordId = searchParams.get("id");
+  const initialRecord = location.state?.record?._id === recordId ? location.state.record : null;
   const [formValues, setFormValues] = useState(() =>
-    getInitialFormValues(config.fields)
+    getInitialFormValues(config.fields, initialRecord ?? {})
   );
   const [requestState, setRequestState] = useState({
-    status: mode === "create" ? "idle" : "loading",
+    status: mode === "create" || initialRecord ? "idle" : "loading",
     error: "",
   });
   const [relatedState, setRelatedState] = useState({
@@ -357,6 +359,12 @@ function CrudFormPage({ moduleConfig, mode }) {
       return;
     }
 
+    if (initialRecord) {
+      setFormValues(getInitialFormValues(config.fields, initialRecord));
+      setRequestState({ status: "success", error: "" });
+      return;
+    }
+
     async function loadRecord() {
       try {
         setRequestState({ status: "loading", error: "" });
@@ -380,6 +388,7 @@ function CrudFormPage({ moduleConfig, mode }) {
     loadRecord();
   }, [
     config.fields,
+    initialRecord,
     mode,
     moduleConfig.apiResource,
     moduleConfig.singularLabel,

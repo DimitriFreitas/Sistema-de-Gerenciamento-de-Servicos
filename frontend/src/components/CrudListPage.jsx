@@ -17,10 +17,6 @@ function getComparableValue(column, record) {
     .toLowerCase();
 }
 
-function isRequestAbort(error) {
-  return error?.name === "AbortError" || String(error?.message ?? "").includes("NS_BINDING_ABORTED");
-}
-
 function CrudListPage({ moduleConfig }) {
   const detail = moduleConfig.list.detailCard;
   const navigate = useNavigate();
@@ -46,16 +42,21 @@ function CrudListPage({ moduleConfig }) {
   const feedback = location.state?.feedback ?? null;
 
   useEffect(() => {
-    const controller = new AbortController();
+    let shouldIgnoreResult = false;
 
     async function loadRecords() {
       try {
         setRequestState({ status: "loading", error: "" });
-        const data = await api.list(moduleConfig.apiResource, {}, { signal: controller.signal });
+        const data = await api.list(moduleConfig.apiResource);
+
+        if (shouldIgnoreResult) {
+          return;
+        }
+
         setRecords(Array.isArray(data) ? data : []);
         setRequestState({ status: "success", error: "" });
       } catch (error) {
-        if (isRequestAbort(error)) {
+        if (shouldIgnoreResult) {
           return;
         }
 
@@ -68,7 +69,9 @@ function CrudListPage({ moduleConfig }) {
 
     loadRecords();
 
-    return () => controller.abort();
+    return () => {
+      shouldIgnoreResult = true;
+    };
   }, [moduleConfig.apiResource]);
 
   useEffect(() => {
@@ -212,6 +215,7 @@ function CrudListPage({ moduleConfig }) {
                     event.preventDefault();
                   }
                 }}
+                state={selectedRecord ? { record: selectedRecord } : undefined}
                 to={buildRecordPath(moduleConfig.actions[3].path)}
               >
                 {moduleConfig.actions[3].label}
@@ -301,6 +305,7 @@ function CrudListPage({ moduleConfig }) {
                         <Link
                           className="table-link"
                           onClick={handleActionClick}
+                          state={{ record }}
                           to={`${moduleConfig.actions[3].path}?id=${record._id}`}
                         >
                           Editar
