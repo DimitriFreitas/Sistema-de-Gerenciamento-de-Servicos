@@ -7,6 +7,8 @@ class ProdutoController {
   async criarProduto(req, res) {
     try {
       const produto = await Produto.create(req.body);
+      await produto.populate("fornecedor");
+
       return res.status(201).json(produto);
     } catch (erro) {
       const response = getRequestErrorResponse(erro, "Erro ao criar produto");
@@ -17,7 +19,7 @@ class ProdutoController {
   // Listar todos os produtos
   async listarProdutos(req, res) {
     try {
-      const produtos = await Produto.find();
+      const produtos = await Produto.find().populate("fornecedor");
       return res.status(200).json(produtos);
     } catch (erro) {
       const response = getRequestErrorResponse(erro, "Erro ao listar produtos");
@@ -30,7 +32,7 @@ class ProdutoController {
     try {
       const { id } = req.params;
 
-      const produto = await Produto.findById(id);
+      const produto = await Produto.findById(id).populate("fornecedor");
 
       if (!produto) {
         return res.status(404).json({ erro: "Produto não encontrado" });
@@ -52,7 +54,7 @@ class ProdutoController {
         id,
         req.body,
         { returnDocument: "after", runValidators: true }
-      );
+      ).populate("fornecedor");
 
       if (!produto) {
         return res.status(404).json({ erro: "Produto não encontrado" });

@@ -15,7 +15,7 @@ const EstoqueSchema = new mongoose.Schema({
 
   tipo: {
     type: String,
-    enum: ["entrada", "saida"],
+    enum: ["entrada", "saida", "ajuste", "transferencia"],
     required: true
   },
 
@@ -33,6 +33,41 @@ const EstoqueSchema = new mongoose.Schema({
   valorTotal: {
     type: Number,
     min: 0
+  },
+
+  localOrigem: {
+    type: String,
+    trim: true
+  },
+
+  localDestino: {
+    type: String,
+    trim: true
+  },
+
+  quantidadeAnterior: {
+    type: Number,
+    min: 0
+  },
+
+  quantidadeNova: {
+    type: Number,
+    min: 0
+  },
+
+  responsavel: {
+    type: String,
+    trim: true
+  },
+
+  motivo: {
+    type: String,
+    trim: true
+  },
+
+  observacao: {
+    type: String,
+    trim: true
   },
 
   data: {
