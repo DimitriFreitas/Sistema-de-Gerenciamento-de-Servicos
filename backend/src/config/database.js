@@ -4,9 +4,11 @@ export async function connectDB() {
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri) {
-    throw new Error("MONGO_URI nao foi configurada. Crie backend/.env com a string de conexao do MongoDB.");
+    throw new Error("MONGO_URI não foi configurada. Crie backend/.env com a string de conexão do MongoDB.");
   }
 
-  await mongoose.connect(mongoUri);
+  await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 10000,
+  });
   console.log("MongoDB conectado");
 }

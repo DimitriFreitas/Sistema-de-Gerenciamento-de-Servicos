@@ -16,7 +16,7 @@ function Home() {
           <div className="section-heading">
             <div>
               <p className="eyebrow">Menu inicial</p>
-              <h3>Modulos disponiveis</h3>
+              <h3>Módulos disponíveis</h3>
             </div>
           </div>
 

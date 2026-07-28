@@ -1,14 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { api } from "../lib/api";
+import { api, request } from "../lib/api";
 import ModuleActionNav from "./ModuleActionNav";
 
 function CrudDeactivatePage({ moduleConfig }) {
   const config = moduleConfig.deactivate;
+  const optionalFields = useMemo(
+    () =>
+      config.optionalFields ?? (
+        config.optionalField ? [{ name: "observacao", ...config.optionalField }] : []
+      ),
+    [config]
+  );
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const recordId = searchParams.get("id");
   const [record, setRecord] = useState(null);
+  const [deactivationValues, setDeactivationValues] = useState(() =>
+    Object.fromEntries(optionalFields.map((field) => [field.name, ""]))
+  );
   const [requestState, setRequestState] = useState({
     status: "loading",
     error: "",
@@ -17,6 +27,12 @@ function CrudDeactivatePage({ moduleConfig }) {
     status: "idle",
     error: "",
   });
+
+  useEffect(() => {
+    setDeactivationValues(
+      Object.fromEntries(optionalFields.map((field) => [field.name, ""]))
+    );
+  }, [optionalFields]);
 
   useEffect(() => {
     if (!recordId) {
@@ -34,7 +50,7 @@ function CrudDeactivatePage({ moduleConfig }) {
         const selectedRecord = data.find((item) => item._id === recordId);
 
         if (!selectedRecord) {
-          throw new Error(`${moduleConfig.singularLabel} nao encontrado.`);
+          throw new Error(`${moduleConfig.singularLabel} não encontrado.`);
         }
 
         setRecord(selectedRecord);
@@ -60,8 +76,17 @@ function CrudDeactivatePage({ moduleConfig }) {
 
       if (config.asyncAction === "delete") {
         await api.remove(moduleConfig.apiResource, recordId);
+      } else if (config.requestPathSuffix) {
+        await request(`${moduleConfig.apiResource}/${recordId}${config.requestPathSuffix}`, {
+          method: "PUT",
+          body: JSON.stringify(config.buildPayload(record, deactivationValues)),
+        });
       } else {
-        await api.update(moduleConfig.apiResource, recordId, config.buildPayload(record));
+        await api.update(
+          moduleConfig.apiResource,
+          recordId,
+          config.buildPayload(record, deactivationValues)
+        );
       }
 
       navigate(moduleConfig.actions[1].path, {
@@ -103,7 +128,7 @@ function CrudDeactivatePage({ moduleConfig }) {
 
           <div className="inner-panel">
             <p className="eyebrow">Detalhes</p>
-            <h4>Detalhes antes da inativacao</h4>
+            <h4>Detalhes antes da inativação</h4>
             <div className="mini-list">
               {config.facts(record).map((fact) => (
                 <div className="mini-list-item" key={fact.label}>
@@ -113,10 +138,22 @@ function CrudDeactivatePage({ moduleConfig }) {
             </div>
           </div>
 
-          <label className="field">
-            <span>{config.optionalField.label}</span>
-            <input placeholder={config.optionalField.placeholder} type="text" />
-          </label>
+          {optionalFields.map((field) => (
+            <label className="field" key={field.name}>
+              <span>{field.label}</span>
+              <input
+                onChange={(event) =>
+                  setDeactivationValues((current) => ({
+                    ...current,
+                    [field.name]: event.target.value,
+                  }))
+                }
+                placeholder={field.placeholder}
+                type="text"
+                value={deactivationValues[field.name] ?? ""}
+              />
+            </label>
+          ))}
 
           <div className="button-group form-actions">
             {config.actionButtons.map((button) => (

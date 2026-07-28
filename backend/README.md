@@ -1,6 +1,6 @@
 # Backend
 
-API do Sistema de Gerenciamento de Serviços. Esta pasta concentra o servidor Express, a conexão com MongoDB e os modelos usados pelos módulos de clientes e produtos.
+API do Sistema de Gerenciamento de Serviços. Esta pasta concentra o servidor Express, a conexão com MongoDB e os modelos usados pelos módulos de clientes, produtos, fornecedores, funcionários, estoque e serviços.
 
 ## Stack
 
@@ -14,16 +14,12 @@ API do Sistema de Gerenciamento de Serviços. Esta pasta concentra o servidor Ex
 
 O backend fornece endpoints HTTP para:
 
-- criar clientes;
-- listar clientes;
-- buscar cliente por ID;
-- atualizar clientes;
-- remover clientes;
-- criar produtos;
-- listar produtos;
-- buscar produto por ID;
-- atualizar produtos;
-- remover produtos.
+- criar, listar, buscar, atualizar e remover clientes;
+- criar, listar, buscar, atualizar e remover produtos;
+- criar, listar, buscar, atualizar e remover fornecedores;
+- criar, listar, buscar, atualizar, inativar e remover funcionários;
+- registrar, listar, buscar, atualizar, ajustar, transferir e remover movimentações de estoque;
+- criar, listar, buscar, atualizar, cancelar e remover serviços.
 
 ## Estrutura
 
@@ -31,7 +27,7 @@ O backend fornece endpoints HTTP para:
 backend/
 ├── src/
 │   ├── config/             # Configuração de banco de dados
-│   ├── controlers/         # Controllers de clientes e produtos
+│   ├── controlers/         # Controllers dos módulos
 │   ├── models/             # Schemas Mongoose
 │   ├── routes/             # Rotas HTTP da API
 │   └── app.js              # Aplicação Express
@@ -98,26 +94,23 @@ http://localhost:3000
 
 ## Endpoints
 
-A interface web usa atualização de `status` para inativar clientes e produtos. Os endpoints `DELETE` abaixo permanecem disponíveis como remoção direta pela API.
-
-### Clientes
+As rotas REST principais seguem este padrão para `clientes`, `produtos`, `fornecedores`, `funcionarios`, `estoque` e `servicos`:
 
 ```text
-GET    /clientes
-GET    /clientes/:id
-POST   /clientes
-PUT    /clientes/:id
-DELETE /clientes/:id
+GET    /<recurso>
+GET    /<recurso>/:id
+POST   /<recurso>
+PUT    /<recurso>/:id
+DELETE /<recurso>/:id
 ```
 
-### Produtos
+Rotas especializadas:
 
 ```text
-GET    /produtos
-GET    /produtos/:id
-POST   /produtos
-PUT    /produtos/:id
-DELETE /produtos/:id
+PUT    /funcionarios/:id/inativar
+POST   /estoque/ajuste
+POST   /estoque/transferencia
+PUT    /servicos/:id/inativar
 ```
 
 ## Modelos principais
@@ -143,6 +136,63 @@ Campos usados pelo módulo:
 - `quantidadeAtual`
 - `quantidadeMinima`
 - `dataValidade`
+- `status`
+
+### Fornecedor
+
+Campos usados pelo módulo:
+
+- `razaoSocial`
+- `nomeFantasia`
+- `cnpj`
+- `telefone`
+- `email`
+- `endereco`
+- `status`
+
+### Funcionário
+
+Campos usados pelo módulo:
+
+- `nome`
+- `cpf`
+- `rg`
+- `email`
+- `telefone`
+- `cargo`
+- `setor`
+- `tipoVinculo`
+- `permissoes`
+- `status`
+
+### Estoque
+
+Campos usados pelo módulo:
+
+- `produto`
+- `fornecedor`
+- `tipo`
+- `quantidade`
+- `valorUnitario`
+- `localOrigem`
+- `localDestino`
+- `responsavel`
+- `motivo`
+
+### Serviço
+
+Campos usados pelo módulo:
+
+- `cliente`
+- `tipo`
+- `descricao`
+- `dataAgendamento`
+- `equipe`
+- `responsavelAtual`
+- `historicoResponsaveis`
+- `produtosUtilizados`
+- `valorMaoDeObra`
+- `valorTotal`
 - `status`
 
 ## Integração com o frontend

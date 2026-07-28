@@ -8,6 +8,7 @@ function MainLayout() {
     isOpen: false,
     pathname: "/",
   });
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const location = useLocation();
   const isHomePage = location.pathname === "/";
   const isSidebarOpen =
@@ -28,8 +29,13 @@ function MainLayout() {
   }
 
   return (
-    <div className="app-shell">
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+    <div className={`app-shell${isSidebarCollapsed ? " app-shell--sidebar-collapsed" : ""}`}>
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        isOpen={isSidebarOpen}
+        onClose={closeSidebar}
+        onToggleCollapsed={() => setIsSidebarCollapsed((current) => !current)}
+      />
 
       {isSidebarOpen ? (
         <button
